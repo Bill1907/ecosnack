@@ -1,4 +1,4 @@
-import * as React from "react"
+import { useState, type FormEvent } from "react"
 
 import {
   Example,
@@ -142,12 +142,17 @@ const roleItems = [
 ]
 
 function FormExample() {
-  const [notifications, setNotifications] = React.useState({
+  const [notifications, setNotifications] = useState({
     email: true,
     sms: false,
     push: true,
   })
-  const [theme, setTheme] = React.useState("light")
+  const [theme, setTheme] = useState("light")
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    // Handle form submission
+  }
 
   return (
     <Example title="Form">
@@ -426,7 +431,7 @@ function FormExample() {
           </CardAction>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <FieldGroup>
               <div className="grid grid-cols-2 gap-4">
                 <Field>
