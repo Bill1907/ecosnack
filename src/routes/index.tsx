@@ -1,80 +1,223 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Sparkles, TrendingUp, Zap, Clock, Target } from 'lucide-react'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { getArticles } from '@/lib/articles.api'
+import type { Article } from '@/db/schema'
 
-export const Route = createFileRoute('/')({ component: App })
+export const Route = createFileRoute('/')({
+  component: HomePage,
+  loader: async () => {
+    const articles = await getArticles()
+    return { articles }
+  },
+})
 
-function App() {
+function HomePage() {
+  const { articles } = Route.useLoaderData()
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50 flex items-center justify-center p-6">
-      {/* 배경 장식 */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-amber-200/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-200/30 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-yellow-100/20 rounded-full blur-3xl" />
-      </div>
-
-      {/* 메인 콘텐츠 */}
-      <div className="relative z-10 max-w-2xl w-full text-center space-y-8">
-        {/* 로고 */}
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg shadow-orange-500/30">
-            <TrendingUp className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
-            Ecosnack
+    <main className="min-h-screen bg-[#fdf6e3] py-8">
+      <div className="mx-auto max-w-6xl px-4">
+        {/* 신문 헤더 */}
+        <header className="mb-8 border-b-4 border-double border-neutral-800 pb-4 text-center">
+          <h1 className="font-serif text-5xl font-black tracking-tight text-neutral-900">
+            EcoSnack Daily
           </h1>
-        </div>
+          <p className="mt-2 font-serif text-sm text-neutral-600">
+            환경 뉴스의 모든 것 |{' '}
+            {new Date().toLocaleDateString('ko-KR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </p>
+        </header>
 
-        {/* 슬로건 */}
-        <p className="text-xl text-amber-600 font-medium">
-          오늘의 경제, 한 입에 🥜
-        </p>
+        {articles.length === 0 ? (
+          <div className="py-20 text-center">
+            <p className="font-serif text-xl text-neutral-600">
+              아직 등록된 기사가 없습니다.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {/* 헤드라인 기사 (첫 번째 기사) */}
+            {articles[0] && <HeadlineArticle article={articles[0]} />}
 
-        {/* 상태 뱃지 */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-sm font-medium">
-          <Sparkles className="w-4 h-4" />
-          <span>서비스 준비중</span>
-        </div>
+            {/* 서브 헤드라인 (2-3번째 기사) */}
+            <div className="space-y-6 md:col-span-1">
+              {articles.slice(1, 3).map((article) => (
+                <SubHeadlineArticle key={article.id} article={article} />
+              ))}
+            </div>
 
-        {/* 메인 메시지 */}
-        <div className="space-y-4">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight">
-            경제 뉴스, 이제
-            <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">
-              "그래서 나한테 뭔 영향?"
+            {/* 나머지 기사들 */}
+            <div className="border-t border-neutral-300 pt-6 md:col-span-3">
+              <h2 className="mb-4 font-serif text-xl font-bold text-neutral-800">
+                More Stories
+              </h2>
+              <div className="grid gap-4 md:grid-cols-3">
+                {articles.slice(3).map((article) => (
+                  <CompactArticle key={article.id} article={article} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+  )
+}
+
+function HeadlineArticle({ article }: { article: Article }) {
+  return (
+    <article className="md:col-span-2">
+      <Link
+        to="/article/$id"
+        params={{ id: String(article.id) }}
+        className="group block"
+      >
+        <div className="border-b-2 border-neutral-800 pb-4">
+          {article.category && (
+            <span className="mb-2 inline-block bg-neutral-800 px-2 py-0.5 font-sans text-xs font-semibold tracking-wide text-white uppercase">
+              {article.category}
             </span>
-            <br />
-            까지 알려드립니다
+          )}
+          <h2 className="font-serif text-3xl leading-tight font-bold text-neutral-900 group-hover:text-neutral-600 md:text-4xl">
+            {article.title}
           </h2>
-          <p className="text-lg text-gray-600 max-w-lg mx-auto">
-            매일 중요한 경제 뉴스를 AI가 쉽게 풀어서 설명하고,
-            <br className="hidden sm:block" />
-            내 투자와 재정에 미치는 영향까지 분석해드려요.
+          {article.headlineSummary && (
+            <p className="mt-3 font-serif text-lg leading-relaxed text-neutral-700">
+              {article.headlineSummary}
+            </p>
+          )}
+          <div className="mt-4 flex items-center gap-3 text-sm text-neutral-500">
+            {article.source && (
+              <span className="font-medium">{article.source}</span>
+            )}
+            {article.pubDate && (
+              <time dateTime={article.pubDate.toISOString()}>
+                {formatDate(article.pubDate)}
+              </time>
+            )}
+            {article.importanceScore && (
+              <ImportanceBadge score={article.importanceScore} />
+            )}
+          </div>
+        </div>
+      </Link>
+
+      {/* So What 섹션 */}
+      {article.soWhat && (
+        <div className="mt-4 border-l-4 border-amber-500 bg-amber-50 p-4">
+          <h3 className="font-sans text-sm font-bold tracking-wide text-amber-800 uppercase">
+            So What?
+          </h3>
+          <p className="mt-1 font-serif text-neutral-700">
+            {article.soWhat.summary}
           </p>
         </div>
-
-        {/* 특징 카드 */}
-        <div className="grid grid-cols-3 gap-4 max-w-md mx-auto pt-2">
-          <div className="flex flex-col items-center gap-2 p-4 bg-white/60 rounded-2xl border border-amber-100">
-            <Zap className="w-6 h-6 text-amber-500" />
-            <span className="text-sm text-gray-700 font-medium">쉬운 설명</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 bg-white/60 rounded-2xl border border-amber-100">
-            <Target className="w-6 h-6 text-orange-500" />
-            <span className="text-sm text-gray-700 font-medium">내 영향 분석</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 bg-white/60 rounded-2xl border border-amber-100">
-            <Clock className="w-6 h-6 text-amber-600" />
-            <span className="text-sm text-gray-700 font-medium">5분 요약</span>
-          </div>
-        </div>
-
-        {/* 푸터 */}
-        <div className="pt-8 text-sm text-gray-400">
-          © 2025 Ecosnack. All rights reserved.
-        </div>
-      </div>
-    </div>
+      )}
+    </article>
   )
+}
+
+function SubHeadlineArticle({ article }: { article: Article }) {
+  return (
+    <article className="border-b border-neutral-200 pb-4">
+      <Link
+        to="/article/$id"
+        params={{ id: String(article.id) }}
+        className="group block"
+      >
+        {article.category && (
+          <span className="mb-1 inline-block font-sans text-xs font-semibold tracking-wide text-amber-700 uppercase">
+            {article.category}
+          </span>
+        )}
+        <h3 className="font-serif text-xl leading-snug font-semibold text-neutral-900 group-hover:text-neutral-600">
+          {article.title}
+        </h3>
+        {article.description && (
+          <p className="mt-2 line-clamp-2 font-serif text-sm text-neutral-600">
+            {article.description}
+          </p>
+        )}
+        <div className="mt-2 flex items-center gap-2 text-xs text-neutral-500">
+          {article.source && <span>{article.source}</span>}
+          {article.pubDate && (
+            <>
+              <span>·</span>
+              <time dateTime={article.pubDate.toISOString()}>
+                {formatDate(article.pubDate)}
+              </time>
+            </>
+          )}
+        </div>
+      </Link>
+    </article>
+  )
+}
+
+function CompactArticle({ article }: { article: Article }) {
+  return (
+    <article className="border-l-2 border-neutral-200 pl-4">
+      <Link
+        to="/article/$id"
+        params={{ id: String(article.id) }}
+        className="group block"
+      >
+        <h4 className="font-serif text-base leading-snug font-medium text-neutral-800 group-hover:text-neutral-600">
+          {article.title}
+        </h4>
+        <div className="mt-1 flex items-center gap-2 text-xs text-neutral-500">
+          {article.category && (
+            <span className="font-medium text-amber-700">
+              {article.category}
+            </span>
+          )}
+          {article.pubDate && (
+            <time dateTime={article.pubDate.toISOString()}>
+              {formatRelativeDate(article.pubDate)}
+            </time>
+          )}
+        </div>
+      </Link>
+    </article>
+  )
+}
+
+function ImportanceBadge({ score }: { score: number }) {
+  const level = score >= 80 ? 'high' : score >= 50 ? 'medium' : 'low'
+  const colors = {
+    high: 'bg-red-100 text-red-800',
+    medium: 'bg-amber-100 text-amber-800',
+    low: 'bg-neutral-100 text-neutral-600',
+  }
+
+  return (
+    <span
+      className={`rounded px-1.5 py-0.5 text-xs font-medium ${colors[level]}`}
+    >
+      중요도 {score}
+    </span>
+  )
+}
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+function formatRelativeDate(date: Date): string {
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  const days = Math.floor(hours / 24)
+
+  if (hours < 1) return '방금 전'
+  if (hours < 24) return `${hours}시간 전`
+  if (days < 7) return `${days}일 전`
+  return formatDate(date)
 }
