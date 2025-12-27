@@ -3,6 +3,7 @@ import {
   Scripts,
   createRootRoute,
   Outlet,
+  Link,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
@@ -34,6 +35,7 @@ export const Route = createRootRoute({
 
   shellComponent: RootDocument,
   component: RootLayout,
+  notFoundComponent: NotFound,
 })
 
 function RootLayout() {
@@ -51,7 +53,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {children}
         <TanStackDevtools
           config={{
@@ -67,5 +69,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
+  )
+}
+
+function NotFound() {
+  return (
+    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
+      <h1 className="text-4xl font-bold">404</h1>
+      <p className="text-gray-600">페이지를 찾을 수 없습니다</p>
+      <Link to="/" className="text-blue-600 hover:underline">
+        홈으로 돌아가기
+      </Link>
+    </div>
   )
 }
