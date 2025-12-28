@@ -1,12 +1,13 @@
 import { createServerFn } from '@tanstack/react-start'
 import { zodValidator } from '@tanstack/zod-adapter'
-import { db } from '@/db'
+import { getDb } from '@/db'
 import { articles } from '@/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { z } from 'zod'
 
 // 전체 기사 목록 조회
 export const getArticles = createServerFn().handler(async () => {
+  const db = getDb()
   const result = await db
     .select()
     .from(articles)
@@ -19,6 +20,7 @@ export const getArticles = createServerFn().handler(async () => {
 export const getArticleById = createServerFn()
   .inputValidator(zodValidator(z.number()))
   .handler(async ({ data: id }) => {
+    const db = getDb()
     const result = await db
       .select()
       .from(articles)
@@ -32,6 +34,7 @@ export const getArticleById = createServerFn()
 export const getArticlesByCategory = createServerFn()
   .inputValidator(zodValidator(z.string()))
   .handler(async ({ data: category }) => {
+    const db = getDb()
     const result = await db
       .select()
       .from(articles)
