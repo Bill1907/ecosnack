@@ -1,56 +1,30 @@
-import { Link } from '@tanstack/react-router'
-
 export function Navigation() {
   return (
-    <nav
-      style={{
-        padding: '1rem',
-        borderBottom: '1px solid #ccc',
-        marginBottom: '2rem',
-      }}
-    >
-      <ul
-        style={{
-          display: 'flex',
-          gap: '1rem',
-          listStyle: 'none',
-          margin: 0,
-          padding: 0,
-        }}
-      >
-        <li>
-          <Link to="/" activeProps={{ style: { fontWeight: 'bold' } }}>
-            홈 =
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/article/$id"
-            params={{ id: '123' }}
-            activeProps={{ style: { fontWeight: 'bold' } }}
+    <header className="border-b border-[#e5e5e5] bg-white ">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="py-6 sm:py-8 text-center ">
+          <h1
+            className="mb-1 sm:mb-2 text-[#1a1a1a] font-serif"
+            style={{
+              fontSize: 'clamp(24px, 5vw, 42px)',
+              fontWeight: '700',
+              letterSpacing: '-0.02em',
+            }}
           >
-            뉴스 디테일
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/category/$slug"
-            params={{ slug: 'technology' }}
-            activeProps={{ style: { fontWeight: 'bold' } }}
-          >
-            기술 카테고리
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/category/$slug"
-            params={{ slug: 'sports' }}
-            activeProps={{ style: { fontWeight: 'bold' } }}
-          >
-            스포츠 카테고리
-          </Link>
-        </li>
-      </ul>
-    </nav>
+            EcoSnack 🥜
+          </h1>
+          {/* <p
+              className="text-[#666666] max-w-3xl mx-auto px-2 sm:px-4"
+              style={{
+                fontSize: 'clamp(11px, 2vw, 15px)',
+                lineHeight: '1.6',
+              }}
+            >
+              글로벌 & 한국 경제 뉴스를 '그래서 나한테 뭔 영향?'까지 쉽게
+              설명해주는 서비스
+            </p> */}
+        </div>
+      </div>
+    </header>
   )
 }
