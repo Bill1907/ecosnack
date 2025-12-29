@@ -6,8 +6,8 @@ import { eq, desc } from 'drizzle-orm'
 import { z } from 'zod'
 
 // 전체 기사 목록 조회
-export const getArticles = createServerFn().handler(async ({ context }) => {
-  const db = getDb(context?.env as { DATABASE_URL?: string } | undefined)
+export const getArticles = createServerFn().handler(async () => {
+  const db = getDb()
   const result = await db
     .select()
     .from(articles)
@@ -19,8 +19,8 @@ export const getArticles = createServerFn().handler(async ({ context }) => {
 // 단일 기사 조회
 export const getArticleById = createServerFn()
   .inputValidator(zodValidator(z.number()))
-  .handler(async ({ data: id, context }) => {
-    const db = getDb(context?.env as { DATABASE_URL?: string } | undefined)
+  .handler(async ({ data: id }) => {
+    const db = getDb()
     const result = await db
       .select()
       .from(articles)
@@ -33,8 +33,8 @@ export const getArticleById = createServerFn()
 // 카테고리별 기사 조회
 export const getArticlesByCategory = createServerFn()
   .inputValidator(zodValidator(z.string()))
-  .handler(async ({ data: category, context }) => {
-    const db = getDb(context?.env as { DATABASE_URL?: string } | undefined)
+  .handler(async ({ data: category }) => {
+    const db = getDb()
     const result = await db
       .select()
       .from(articles)
