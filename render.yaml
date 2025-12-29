@@ -1,9 +1,9 @@
 services:
   - type: web
     name: ecosnack
-    runtime: node
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
+    runtime: bun
+    buildCommand: bun install && bun run build
+    startCommand: bun run start
     envVars:
       - key: DATABASE_URL
         sync: false
