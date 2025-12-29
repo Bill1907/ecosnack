@@ -4,7 +4,6 @@ import { CategoryBadge } from './CategoryBadge'
 interface NewsCardProps {
   id: number
   category: string
-  categoryVariant: 'global' | 'local' | 'market' | 'tech' | 'policy'
   headline: string
   summary: string
   source: string
@@ -14,7 +13,6 @@ interface NewsCardProps {
 export function NewsCard({
   id,
   category,
-  categoryVariant,
   headline,
   summary,
   source,
@@ -24,11 +22,11 @@ export function NewsCard({
     <Link to={`/article/$id`} params={{ id: String(id) }}>
       <article className="bg-white border border-[#e5e5e5] p-4 sm:p-6 rounded-sm transition-all cursor-pointer">
         <div className="mb-3">
-          <CategoryBadge category={category} variant={categoryVariant} />
+          <CategoryBadge category={category} />
         </div>
 
         <h2
-          className="mb-3 text-[#1a1a1a] line-clamp-3 font-serif"
+          className="mb-3 text-[#1a1a1a] line-clamp-3"
           style={{
             fontSize: 'clamp(16px, 3vw, 20px)',
             fontWeight: '700',

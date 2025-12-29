@@ -42,7 +42,9 @@ function RootLayout() {
   return (
     <>
       <Navigation />
-      <Outlet />
+      <div className="pt-[58.5px] sm:pt-[72px]">
+        <Outlet />
+      </div>
     </>
   )
 }

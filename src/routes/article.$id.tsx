@@ -1,127 +1,15 @@
-// import { createFileRoute } from '@tanstack/react-router'
-// import { getArticleById } from '@/lib/articles.api'
-// import type { Article } from '@/db/schema'
-
-// export const Route = createFileRoute('/article/$id')({
-//   loader: async ({ params }) => {
-//     const article = await getArticleById({ data: Number(params.id) })
-//     if (!article) {
-//       throw new Error('Article not found')
-//     }
-//     return article
-//   },
-//   component: ArticleDetail,
-// })
-
-// function ArticleDetail() {
-//   const article = Route.useLoaderData() as Article
-
-//   return (
-//     <article className="mx-auto max-w-4xl p-6">
-//       {/* 헤더 */}
-//       <header className="mb-8">
-//         <h1 className="mb-4 text-3xl font-bold">{article.title}</h1>
-//         <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-//           {article.source && <span>출처: {article.source}</span>}
-//           {article.region && <span>지역: {article.region}</span>}
-//           {article.pubDate && (
-//             <time>
-//               {new Date(article.pubDate).toLocaleDateString('ko-KR')}
-//             </time>
-//           )}
-//         </div>
-//       </header>
-
-//       {/* AI 요약 */}
-//       {article.headlineSummary && (
-//         <section className="mb-6 rounded-lg bg-blue-50 p-4">
-//           <h2 className="mb-2 font-semibold">AI 요약</h2>
-//           <p>{article.headlineSummary}</p>
-//         </section>
-//       )}
-
-//       {/* 본문 설명 */}
-//       {article.description && (
-//         <section className="mb-6">
-//           <p className="leading-relaxed">{article.description}</p>
-//         </section>
-//       )}
-
-//       {/* So What 분석 */}
-//       {article.soWhat && (
-//         <section className="mb-6 rounded-lg bg-yellow-50 p-4">
-//           <h2 className="mb-2 font-semibold">So What?</h2>
-//           <p className="mb-2">{article.soWhat.summary}</p>
-//           {article.soWhat.implications && (
-//             <ul className="list-inside list-disc">
-//               {article.soWhat.implications.map((item, i) => (
-//                 <li key={i}>{item}</li>
-//               ))}
-//             </ul>
-//           )}
-//         </section>
-//       )}
-
-//       {/* 영향 분석 */}
-//       {article.impactAnalysis && (
-//         <section className="mb-6 rounded-lg bg-green-50 p-4">
-//           <h2 className="mb-2 font-semibold">영향 분석</h2>
-//           <div className="grid gap-3 md:grid-cols-3">
-//             <div>
-//               <h3 className="text-sm font-medium">환경</h3>
-//               <p className="text-sm">{article.impactAnalysis.environmental}</p>
-//             </div>
-//             <div>
-//               <h3 className="text-sm font-medium">경제</h3>
-//               <p className="text-sm">{article.impactAnalysis.economic}</p>
-//             </div>
-//             <div>
-//               <h3 className="text-sm font-medium">사회</h3>
-//               <p className="text-sm">{article.impactAnalysis.social}</p>
-//             </div>
-//           </div>
-//         </section>
-//       )}
-
-//       {/* 키워드 */}
-//       {article.keywords && article.keywords.length > 0 && (
-//         <section className="mb-6">
-//           <div className="flex flex-wrap gap-2">
-//             {article.keywords.map((keyword, i) => (
-//               <span
-//                 key={i}
-//                 className="rounded-full bg-gray-200 px-3 py-1 text-sm"
-//               >
-//                 {keyword}
-//               </span>
-//             ))}
-//           </div>
-//         </section>
-//       )}
-
-//       {/* 원문 링크 */}
-//       <footer className="border-t pt-4">
-//         <a
-//           href={article.link}
-//           target="_blank"
-//           rel="noopener noreferrer"
-//           className="text-blue-600 hover:underline"
-//         >
-//           원문 보기 →
-//         </a>
-//       </footer>
-//     </article>
-//   )
-// }
-
 import { createFileRoute } from '@tanstack/react-router'
-import { BackButton } from '../components/BackButton'
 import { CategoryBadge } from '../components/CategoryBadge'
 import { ShareButtons } from '../components/ShareButtons'
 import { Footer } from '../components/Footer'
+import { ImpactItem } from '../components/feature/article/ImpactItem'
 import { getArticleById } from '../lib/articles.api'
-import type { Article } from '../db/schema'
 import { Clock } from 'lucide-react'
+import {
+  getCategoryVariant,
+  formatRelativeTime,
+  calculateReadTime,
+} from '../lib/utils'
 
 export const Route = createFileRoute('/article/$id')({
   loader: async ({ params }) => {
@@ -134,46 +22,6 @@ export const Route = createFileRoute('/article/$id')({
   component: ArticleDetailPage,
 })
 
-// 카테고리를 categoryVariant로 매핑하는 헬퍼 함수
-function getCategoryVariant(
-  category: string | null,
-): 'global' | 'local' | 'market' | 'tech' | 'policy' {
-  const categoryMap: Record<
-    string,
-    'global' | 'local' | 'market' | 'tech' | 'policy'
-  > = {
-    '글로벌 경제': 'global',
-    '한국 경제': 'local',
-    '시장 동향': 'market',
-    기술: 'tech',
-    정책: 'policy',
-  }
-  return categoryMap[category || ''] || 'global'
-}
-
-// 날짜를 상대적 시간으로 변환하는 헬퍼 함수
-function formatRelativeTime(date: Date | null): string {
-  if (!date) return '방금 전'
-
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  const days = Math.floor(hours / 24)
-
-  if (hours < 1) return '방금 전'
-  if (hours < 24) return `${hours}시간 전`
-  if (days < 7) return `${days}일 전`
-  return date.toLocaleDateString('ko-KR')
-}
-
-// 읽기 시간 계산 (대략적으로 텍스트 길이 기반)
-function calculateReadTime(article: Article): string {
-  const textLength =
-    (article.description || '') + (article.headlineSummary || '')
-  const minutes = Math.max(1, Math.ceil(textLength.length / 500)) // 대략 500자당 1분
-  return `${minutes}분`
-}
-
 function ArticleDetailPage() {
   const { article } = Route.useLoaderData()
 
@@ -181,19 +29,24 @@ function ArticleDetailPage() {
     <div className="bg-white min-h-screen flex flex-col">
       {/* Article Content */}
       <article className="max-w-[680px] mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-12 flex-1">
-        <BackButton />
-
         {/* Article Header */}
         <header className="mb-6 sm:mb-8">
-          <div className="mb-4">
+          <div className="mb-4 flex flex-wrap items-center gap-2">
             <CategoryBadge
               category={article.category || '기타'}
               variant={getCategoryVariant(article.category)}
             />
+
+            {/* Region Badge */}
+            {article.region && (
+              <span className="px-3 py-1 bg-[#f5f5f5] text-[#666666] rounded-full text-sm font-medium">
+                📍 {article.region}
+              </span>
+            )}
           </div>
 
           <h1
-            className="mb-4 sm:mb-6 text-[#1a1a1a] font-serif"
+            className="mb-4 sm:mb-6 text-[#1a1a1a]"
             style={{
               fontSize: 'clamp(28px, 5vw, 40px)',
               fontWeight: '700',
@@ -229,6 +82,16 @@ function ArticleDetailPage() {
               <span>{calculateReadTime(article)} 분량</span>
               <span>·</span>
               <span>{formatRelativeTime(article.pubDate)}</span>
+              {article.importanceScore && (
+                <>
+                  <span>·</span>
+                  <span className="flex items-center gap-1">
+                    {'⭐'.repeat(
+                      Math.min(Math.ceil(article.importanceScore / 2), 5),
+                    )}
+                  </span>
+                </>
+              )}
             </div>
             <div className="ml-auto">
               <ShareButtons />
@@ -253,88 +116,157 @@ function ArticleDetailPage() {
 
           {/* So What Section */}
           {article.soWhat && (
-            <div className="mb-8 p-6 bg-[#fffbeb] border-l-4 border-[#f59e0b] rounded-r-lg">
-              <h3 className="text-lg font-semibold mb-3 text-[#1a1a1a]">
-                So What? 🤔
-              </h3>
-              <p
-                className="mb-4 text-[#1a1a1a]"
-                style={{ fontSize: '16px', lineHeight: '1.7' }}
-              >
-                {article.soWhat.summary}
-              </p>
-              {article.soWhat.implications &&
-                article.soWhat.implications.length > 0 && (
-                  <ul className="space-y-2">
-                    {article.soWhat.implications.map(
-                      (item: string, i: number) => (
-                        <li
-                          key={i}
-                          className="flex items-start gap-2 text-[#666666]"
-                          style={{ fontSize: '15px' }}
-                        >
-                          <span className="text-[#f59e0b] mt-1">•</span>
-                          <span>{item}</span>
-                        </li>
-                      ),
-                    )}
-                  </ul>
-                )}
+            <div className="mb-8 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-2xl shadow-sm border border-amber-100/50 overflow-hidden transition-all duration-300 hover:shadow-md">
+              {/* Header */}
+              <div className="p-6 pb-4">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="bg-amber-100 text-amber-600 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
+                    🤔
+                  </div>
+                  <h3 className="text-lg font-semibold text-[#1a1a1a] pt-1.5">
+                    So What?
+                  </h3>
+                </div>
+                <p
+                  className="text-[#1a1a1a] leading-relaxed"
+                  style={{ fontSize: '16px', lineHeight: '1.7' }}
+                >
+                  {article.soWhat.main_point}
+                </p>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 pb-6 space-y-3">
+                {/* Market Signal */}
+                <div className="bg-white/70 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold mb-2 text-[#1a1a1a] flex items-center gap-2">
+                    <span className="text-amber-600">📈</span>
+                    시장 시그널
+                  </h4>
+                  <p
+                    className="text-[#666666] leading-relaxed"
+                    style={{ fontSize: '15px' }}
+                  >
+                    {article.soWhat.market_signal}
+                  </p>
+                </div>
+
+                {/* Time Horizon */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-[#1a1a1a]">
+                    ⏱️ 영향 기간:
+                  </span>
+                  <span
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all hover:scale-105 ${
+                      article.soWhat.time_horizon === 'short'
+                        ? 'bg-blue-100 text-blue-700'
+                        : article.soWhat.time_horizon === 'medium'
+                          ? 'bg-purple-100 text-purple-700'
+                          : 'bg-green-100 text-green-700'
+                    }`}
+                  >
+                    {article.soWhat.time_horizon === 'short'
+                      ? '단기 (1주)'
+                      : article.soWhat.time_horizon === 'medium'
+                        ? '중기 (1-3개월)'
+                        : '장기 (1년+)'}
+                  </span>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Impact Analysis */}
           {article.impactAnalysis && (
-            <div className="mb-8 p-6 bg-[#f0fdf4] border-l-4 border-[#10b981] rounded-r-lg">
-              <h3 className="text-lg font-semibold mb-4 text-[#1a1a1a]">
+            <div className="mb-8 space-y-4">
+              <h3 className="text-lg font-semibold text-[#1a1a1a]">
                 영향 분석 📊
               </h3>
-              <div className="grid gap-4 md:grid-cols-3">
-                {article.impactAnalysis.environmental && (
-                  <div>
-                    <h4
-                      className="font-medium mb-2 text-[#1a1a1a]"
-                      style={{ fontSize: '14px' }}
-                    >
-                      🌍 환경
-                    </h4>
-                    <p
-                      className="text-[#666666]"
-                      style={{ fontSize: '14px', lineHeight: '1.6' }}
-                    >
-                      {article.impactAnalysis.environmental}
-                    </p>
+
+              {/* Investors Impact */}
+              {article.impactAnalysis.investors && (
+                <ImpactItem
+                  type="investors"
+                  data={article.impactAnalysis.investors}
+                />
+              )}
+
+              {/* Workers Impact */}
+              {article.impactAnalysis.workers && (
+                <ImpactItem
+                  type="workers"
+                  data={article.impactAnalysis.workers}
+                />
+              )}
+
+              {/* Consumers Impact */}
+              {article.impactAnalysis.consumers && (
+                <ImpactItem
+                  type="consumers"
+                  data={article.impactAnalysis.consumers}
+                />
+              )}
+            </div>
+          )}
+
+          {/* Related Context */}
+          {article.relatedContext && (
+            <div className="mb-8 bg-gradient-to-br from-slate-50 to-gray-50 rounded-2xl shadow-sm border border-slate-100/50 overflow-hidden transition-all duration-300 hover:shadow-md">
+              {/* Header */}
+              <div className="p-6 pb-4">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="bg-slate-100 text-slate-600 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
+                    📚
                   </div>
-                )}
-                {article.impactAnalysis.economic && (
-                  <div>
-                    <h4
-                      className="font-medium mb-2 text-[#1a1a1a]"
-                      style={{ fontSize: '14px' }}
-                    >
-                      💰 경제
+                  <h3 className="text-lg font-semibold text-[#1a1a1a] pt-1.5">
+                    배경 정보
+                  </h3>
+                </div>
+                <p
+                  className="text-[#666666] leading-relaxed"
+                  style={{ fontSize: '15px', lineHeight: '1.7' }}
+                >
+                  {article.relatedContext.background}
+                </p>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 pb-6 space-y-4">
+                {/* Related Events */}
+                {article.relatedContext.related_events &&
+                  article.relatedContext.related_events.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold mb-2.5 text-[#1a1a1a] flex items-center gap-2">
+                        <span className="text-slate-600">🔗</span>
+                        연관된 최근 이슈
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {article.relatedContext.related_events.map(
+                          (event: string, i: number) => (
+                            <span
+                              key={i}
+                              className="px-3 py-1.5 bg-white text-slate-700 rounded-lg text-sm font-medium border border-slate-200/50 transition-all hover:scale-105 hover:border-slate-300"
+                            >
+                              {event}
+                            </span>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                {/* What to Watch */}
+                {article.relatedContext.what_to_watch && (
+                  <div className="bg-white/70 rounded-lg p-4">
+                    <h4 className="text-sm font-semibold mb-2 text-[#1a1a1a] flex items-center gap-2">
+                      <span className="text-slate-600">👀</span>
+                      주목할 후속 이벤트
                     </h4>
                     <p
-                      className="text-[#666666]"
-                      style={{ fontSize: '14px', lineHeight: '1.6' }}
-                    >
-                      {article.impactAnalysis.economic}
-                    </p>
-                  </div>
-                )}
-                {article.impactAnalysis.social && (
-                  <div>
-                    <h4
-                      className="font-medium mb-2 text-[#1a1a1a]"
+                      className="text-[#666666] leading-relaxed"
                       style={{ fontSize: '14px' }}
                     >
-                      👥 사회
-                    </h4>
-                    <p
-                      className="text-[#666666]"
-                      style={{ fontSize: '14px', lineHeight: '1.6' }}
-                    >
-                      {article.impactAnalysis.social}
+                      {article.relatedContext.what_to_watch}
                     </p>
                   </div>
                 )}
@@ -342,67 +274,34 @@ function ArticleDetailPage() {
             </div>
           )}
 
-          {/* Related Context */}
-          {article.relatedContext && (
-            <div className="mb-8 p-6 bg-[#f5f5f5] rounded-lg">
-              <h3 className="text-lg font-semibold mb-3 text-[#1a1a1a]">
-                배경 정보 📚
-              </h3>
-              <p
-                className="mb-4 text-[#666666]"
-                style={{ fontSize: '15px', lineHeight: '1.7' }}
-              >
-                {article.relatedContext.background}
-              </p>
-              {article.relatedContext.relatedTopics &&
-                article.relatedContext.relatedTopics.length > 0 && (
-                  <div>
-                    <h4
-                      className="font-medium mb-2 text-[#1a1a1a]"
-                      style={{ fontSize: '14px' }}
-                    >
-                      관련 주제
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {article.relatedContext.relatedTopics.map(
-                        (topic: string, i: number) => (
-                          <span
-                            key={i}
-                            className="px-3 py-1 bg-white text-[#666666] rounded-full"
-                            style={{ fontSize: '13px' }}
-                          >
-                            {topic}
-                          </span>
-                        ),
-                      )}
-                    </div>
-                  </div>
-                )}
-            </div>
-          )}
-
           {/* Sentiment */}
           {article.sentiment && (
-            <div className="mb-6 flex items-center gap-2">
+            <div className="mb-6 flex items-center gap-3">
               <span className="text-[#999999]" style={{ fontSize: '14px' }}>
                 감정 분석:
               </span>
               <span
                 className={`px-3 py-1 rounded-full ${
-                  article.sentiment.label === 'positive'
+                  article.sentiment.overall === 'positive'
                     ? 'bg-green-100 text-green-800'
-                    : article.sentiment.label === 'negative'
+                    : article.sentiment.overall === 'negative'
                       ? 'bg-red-100 text-red-800'
-                      : 'bg-gray-100 text-gray-800'
+                      : article.sentiment.overall === 'mixed'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-gray-100 text-gray-800'
                 }`}
                 style={{ fontSize: '13px', fontWeight: '500' }}
               >
-                {article.sentiment.label === 'positive'
-                  ? '긍정적'
-                  : article.sentiment.label === 'negative'
-                    ? '부정적'
-                    : '중립'}{' '}
-                ({article.sentiment.score})
+                {article.sentiment.overall === 'positive'
+                  ? '😊 긍정적'
+                  : article.sentiment.overall === 'negative'
+                    ? '😟 부정적'
+                    : article.sentiment.overall === 'mixed'
+                      ? '😐 복합적'
+                      : '😶 중립'}
+              </span>
+              <span className="text-[#999999]" style={{ fontSize: '13px' }}>
+                신뢰도: {Math.round(article.sentiment.confidence * 100)}%
               </span>
             </div>
           )}
