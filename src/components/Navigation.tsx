@@ -1,28 +1,46 @@
+import { Link, useRouter, useRouterState } from '@tanstack/react-router'
+import { ArrowLeft } from 'lucide-react'
+
 export function Navigation() {
+  const router = useRouter()
+  const state = useRouterState()
+  const isArticleDetail = state.location.pathname.startsWith('/article/')
+
   return (
-    <header className="border-b border-[#e5e5e5] bg-white ">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#e5e5e5] bg-white/95 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-6 sm:py-8 text-center ">
-          <h1
-            className="mb-1 sm:mb-2 text-[#1a1a1a] font-serif"
-            style={{
-              fontSize: 'clamp(24px, 5vw, 42px)',
-              fontWeight: '700',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            EcoSnack 🥜
-          </h1>
-          {/* <p
-              className="text-[#666666] max-w-3xl mx-auto px-2 sm:px-4"
+        <div className="py-4 sm:py-6 flex items-center justify-between">
+          {/* 백 버튼 (디테일 페이지에서만 표시) */}
+          <div className="flex-1">
+            {isArticleDetail && (
+              <div
+                onClick={() => router.history.back()}
+                className="inline-flex items-center gap-2 text-[#666666] hover:text-[#1a1a1a] transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="hidden sm:inline text-sm font-medium">
+                  뒤로
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* 로고 */}
+          <Link to="/" className="flex-1 text-center">
+            <h1
+              className="text-[#1a1a1a] font-serif inline-block"
               style={{
-                fontSize: 'clamp(11px, 2vw, 15px)',
-                lineHeight: '1.6',
+                fontSize: 'clamp(20px, 4vw, 32px)',
+                fontWeight: '700',
+                letterSpacing: '-0.02em',
               }}
             >
-              글로벌 & 한국 경제 뉴스를 '그래서 나한테 뭔 영향?'까지 쉽게
-              설명해주는 서비스
-            </p> */}
+              HEY! Vona
+            </h1>
+          </Link>
+
+          {/* 오른쪽 여백 (레이아웃 균형을 위해) */}
+          <div className="flex-1"></div>
         </div>
       </div>
     </header>
