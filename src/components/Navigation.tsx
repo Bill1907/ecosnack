@@ -28,7 +28,7 @@ export function Navigation() {
           {/* 로고 */}
           <Link to="/" className="flex items-center justify-center">
             <img
-              src="/logo.png"
+              src="https://cdn.heyvona.com/logo.png"
               alt="Logo"
               className="object-contain w-28 h-28"
             />
