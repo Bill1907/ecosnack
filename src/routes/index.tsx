@@ -17,6 +17,7 @@ import {
   getOrganizationJsonLd,
   SITE_CONFIG,
 } from '../lib/seo'
+import { NewsCardSkeleton } from '@/components/NewsCardSkeleton'
 
 // 검색 파라미터 타입 정의
 type SearchParams = {
@@ -126,25 +127,24 @@ function HomePage() {
 
           {/* News Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            {/* 로딩 스켈레톤으로 수정 예정 */}
-            {isLoading ? (
-              <div className="col-span-full text-center py-12 text-gray-500 h-[calc(100vh-200px)] flex items-center justify-center">
-                로딩 중...
-              </div>
-            ) : (
-              articles.map((article) => (
-                <NewsCard
-                  key={article.id}
-                  id={article.id}
-                  category={article.category || '기타'}
-                  headline={article.title}
-                  summary={article.description || article.headlineSummary || ''}
-                  source={article.source || ''}
-                  timestamp={formatRelativeTime(article.pubDate)}
-                  imageUrl={article.imageUrl || ''}
-                />
-              ))
-            )}
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, index) => (
+                  <NewsCardSkeleton key={`skeleton-${index}`} />
+                ))
+              : articles.map((article) => (
+                  <NewsCard
+                    key={article.id}
+                    id={article.id}
+                    category={article.category || '기타'}
+                    headline={article.title}
+                    summary={
+                      article.description || article.headlineSummary || ''
+                    }
+                    source={article.source || ''}
+                    timestamp={formatRelativeTime(article.pubDate)}
+                    imageUrl={article.imageUrl || ''}
+                  />
+                ))}
           </div>
         </div>
       </main>
