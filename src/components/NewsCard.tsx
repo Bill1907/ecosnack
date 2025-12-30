@@ -23,10 +23,6 @@ export function NewsCard({
   return (
     <Link to={`/article/$id`} params={{ id: String(id) }}>
       <article className="bg-white border border-[#e5e5e5] p-4 sm:p-6 rounded-sm transition-all duration-300 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl origin-center">
-        <div className="mb-3">
-          <CategoryBadge category={category} />
-        </div>
-
         {imageUrl && (
           <img
             src={imageUrl}
@@ -62,6 +58,7 @@ export function NewsCard({
             fontSize: '12px',
           }}
         >
+          <CategoryBadge category={category} />
           <span>{source}</span>
           <span>·</span>
           <span>{timestamp}</span>

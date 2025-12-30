@@ -25,7 +25,7 @@ export function CategoryFilter({
         msOverflowStyle: 'none',
         scrollbarWidth: 'none',
       }}
-      className="mb-6 sm:mb-8 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 "
+      className="mb-2 sm:mb-4 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex sm:justify-center"
     >
       <style>
         {`

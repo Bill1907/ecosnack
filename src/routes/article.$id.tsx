@@ -93,6 +93,17 @@ function ArticleDetailPage() {
 
         {/* Article Body */}
         <div className="article-content">
+          {/* Article Image */}
+          {article.imageUrl && (
+            <div className="mb-6 rounded-sm overflow-hidden shadow-sm">
+              <img
+                src={article.imageUrl}
+                alt={article.title}
+                className="w-full h-auto object-cover"
+                style={{ maxHeight: '400px' }}
+              />
+            </div>
+          )}
           {/* Main Description */}
           {article.description && (
             <p
