@@ -111,6 +111,7 @@ export const articles = pgTable('articles', {
   title: text('title').notNull(),
   link: text('link').unique().notNull(),
   description: text('description'),
+  imageUrl: text('image_url'),
   pubDate: timestamp('pub_date', { withTimezone: true }),
   source: varchar('source', { length: 100 }),
   region: varchar('region', { length: 10 }),

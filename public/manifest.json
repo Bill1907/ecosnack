@@ -1,6 +1,7 @@
 {
-  "short_name": "TanStack App",
-  "name": "Create TanStack App Sample",
+  "short_name": "HEY! Vona",
+  "name": "HEY! Vona - 오늘의 경제, 한 입에",
+  "description": "글로벌 & 한국 경제 뉴스를 '그래서 나한테 뭔 영향?'까지 쉽게 설명해주는 서비스",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +11,21 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#1a1a1a",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "lang": "ko",
+  "categories": ["news", "business", "finance"]
 }
