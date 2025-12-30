@@ -5,8 +5,6 @@ import { Footer } from '../components/Footer'
 import { ImpactItem } from '../components/feature/article/ImpactItem'
 import { getArticleById } from '../lib/articles.api'
 import { formatRelativeTime } from '../lib/utils'
-import { CATEGORY_INFO } from '@/lib/const'
-import { Category } from '@/db/schema'
 
 export const Route = createFileRoute('/article/$id')({
   loader: async ({ params }) => {

@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { NewsCard } from '../components/NewsCard'
 import { CategoryFilter } from '../components/CategoryFilter'
@@ -11,8 +11,19 @@ import {
 import type { Article, Category } from '../db/schema'
 import { formatRelativeTime } from '@/lib/utils'
 
+// 검색 파라미터 타입 정의
+type SearchParams = {
+  category?: Category
+}
+
 export const Route = createFileRoute('/')({
   component: HomePage,
+  // 검색 파라미터 유효성 검사
+  validateSearch: (search: Record<string, unknown>): SearchParams => {
+    return {
+      category: search.category as Category | undefined,
+    }
+  },
   loader: async () => {
     const [articles, categories] = await Promise.all([
       getArticles(),
@@ -24,11 +35,19 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   const { articles: initialArticles, categories } = Route.useLoaderData()
+  const navigate = useNavigate({ from: '/' })
+  const { category: urlCategory } = Route.useSearch()
+
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>(
-    'all',
+    urlCategory || 'all',
   )
   const [articles, setArticles] = useState<Article[]>(initialArticles)
   const [isLoading, setIsLoading] = useState(false)
+
+  // URL 파라미터가 변경되면 selectedCategory 업데이트
+  useEffect(() => {
+    setSelectedCategory(urlCategory || 'all')
+  }, [urlCategory])
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -53,6 +72,15 @@ function HomePage() {
     fetchArticles()
   }, [selectedCategory])
 
+  // 카테고리 변경 핸들러 - URL 파라미터 업데이트
+  const handleCategoryChange = (category: Category | 'all') => {
+    navigate({
+      search: {
+        category: category === 'all' ? undefined : category,
+      },
+    })
+  }
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Main Content */}
@@ -62,7 +90,7 @@ function HomePage() {
           <CategoryFilter
             categories={categories}
             selectedCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
+            onCategoryChange={handleCategoryChange}
           />
 
           {/* News Grid */}
