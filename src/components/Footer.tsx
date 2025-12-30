@@ -34,8 +34,8 @@ export function Footer() {
               className="text-[#666666]"
               style={{ fontSize: '14px', lineHeight: '1.6' }}
             >
-              이메일: contact@ecosnack.com
-              <br />© 2025 Ecosnack. All rights reserved.
+              이메일: boseong.romi@gmail.com
+              <br />© 2025 Hey! Vona. All rights reserved.
             </p>
           </div>
         </div>
