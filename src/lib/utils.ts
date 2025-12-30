@@ -6,23 +6,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// 카테고리를 categoryVariant로 매핑하는 헬퍼 함수
-export function getCategoryVariant(
-  category: string | null,
-): 'global' | 'local' | 'market' | 'tech' | 'policy' {
-  const categoryMap: Record<
-    string,
-    'global' | 'local' | 'market' | 'tech' | 'policy'
-  > = {
-    '글로벌 경제': 'global',
-    '한국 경제': 'local',
-    '시장 동향': 'market',
-    기술: 'tech',
-    정책: 'policy',
-  }
-  return categoryMap[category || ''] || 'global'
-}
-
 // 날짜를 상대적 시간으로 변환하는 헬퍼 함수
 export function formatRelativeTime(date: Date | null): string {
   if (!date) return '방금 전'

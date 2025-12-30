@@ -37,6 +37,11 @@ export function Navigation() {
             >
               HEY! Vona
             </h1>
+            {/* <img
+              src="/logo.png"
+              alt="Logo"
+              className="object-contain w-20 h-20"
+            /> */}
           </Link>
 
           {/* 오른쪽 여백 (레이아웃 균형을 위해) */}

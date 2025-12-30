@@ -23,7 +23,7 @@ const IMPACT_CONFIG = {
     },
   },
   workers: {
-    title: '직장인/노동자에게 미치는 영향',
+    title: '근로자에게 미치는 영향',
     icon: '👷',
     bgGradient: 'bg-gradient-to-br from-amber-50 to-orange-50',
     iconBg: 'bg-amber-100',

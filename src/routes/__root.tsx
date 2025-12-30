@@ -10,6 +10,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import appCss from '../styles.css?url'
 import { Navigation } from '../components/Navigation'
+import { ScrollToTopButton } from '../components/ScrollToTopButton'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -45,6 +46,7 @@ function RootLayout() {
       <div className="pt-[58.5px] sm:pt-[72px]">
         <Outlet />
       </div>
+      <ScrollToTopButton />
     </>
   )
 }

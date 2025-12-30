@@ -4,12 +4,9 @@ import { ShareButtons } from '../components/ShareButtons'
 import { Footer } from '../components/Footer'
 import { ImpactItem } from '../components/feature/article/ImpactItem'
 import { getArticleById } from '../lib/articles.api'
-import { Clock } from 'lucide-react'
-import {
-  getCategoryVariant,
-  formatRelativeTime,
-  calculateReadTime,
-} from '../lib/utils'
+import { formatRelativeTime } from '../lib/utils'
+import { CATEGORY_INFO } from '@/lib/const'
+import { Category } from '@/db/schema'
 
 export const Route = createFileRoute('/article/$id')({
   loader: async ({ params }) => {
@@ -32,10 +29,7 @@ function ArticleDetailPage() {
         {/* Article Header */}
         <header className="mb-6 sm:mb-8">
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            <CategoryBadge
-              category={article.category || '기타'}
-              variant={getCategoryVariant(article.category)}
-            />
+            <CategoryBadge category={article.category || ''} />
 
             {/* Region Badge */}
             {article.region && (
@@ -78,9 +72,9 @@ function ArticleDetailPage() {
               className="flex items-center gap-2 text-[#999999]"
               style={{ fontSize: '14px' }}
             >
-              <Clock className="w-4 h-4" />
+              {/* <Clock className="w-4 h-4" />
               <span>{calculateReadTime(article)} 분량</span>
-              <span>·</span>
+              <span>·</span> */}
               <span>{formatRelativeTime(article.pubDate)}</span>
               {article.importanceScore && (
                 <>
@@ -104,7 +98,7 @@ function ArticleDetailPage() {
           {/* Main Description */}
           {article.description && (
             <p
-              className="mb-6 text-[#1a1a1a]"
+              className="text-[#1a1a1a]"
               style={{
                 fontSize: 'clamp(16px, 2.5vw, 18px)',
                 lineHeight: '1.8',
@@ -112,6 +106,20 @@ function ArticleDetailPage() {
             >
               {article.description}
             </p>
+          )}
+          {/* Original Link */}
+          {article.link && (
+            <div className="pt-4 pb-8 border-b mb-10 border-[#e5e5e5] flex justify-end">
+              <a
+                href={article.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-[#0066cc] hover:underline"
+                style={{ fontSize: '15px', fontWeight: '500' }}
+              >
+                원문 보기 →
+              </a>
+            </div>
           )}
 
           {/* So What Section */}
@@ -237,7 +245,7 @@ function ArticleDetailPage() {
                   article.relatedContext.related_events.length > 0 && (
                     <div>
                       <h4 className="text-sm font-semibold mb-2.5 text-[#1a1a1a] flex items-center gap-2">
-                        <span className="text-slate-600">🔗</span>
+                        {/* <span className="text-slate-600">🔗</span> */}
                         연관된 최근 이슈
                       </h4>
                       <div className="flex flex-wrap gap-2">
@@ -277,7 +285,7 @@ function ArticleDetailPage() {
           {/* Sentiment */}
           {article.sentiment && (
             <div className="mb-6 flex items-center gap-3">
-              <span className="text-[#999999]" style={{ fontSize: '14px' }}>
+              {/* <span className="text-[#999999]" style={{ fontSize: '14px' }}>
                 감정 분석:
               </span>
               <span
@@ -299,7 +307,7 @@ function ArticleDetailPage() {
                     : article.sentiment.overall === 'mixed'
                       ? '😐 복합적'
                       : '😶 중립'}
-              </span>
+              </span> */}
               <span className="text-[#999999]" style={{ fontSize: '13px' }}>
                 신뢰도: {Math.round(article.sentiment.confidence * 100)}%
               </span>
@@ -322,26 +330,8 @@ function ArticleDetailPage() {
               </div>
             </div>
           )}
-
-          {/* Original Link */}
-          {article.link && (
-            <div className="mt-8 pt-8 border-t border-[#e5e5e5]">
-              <a
-                href={article.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-[#0066cc] hover:underline"
-                style={{ fontSize: '15px', fontWeight: '500' }}
-              >
-                원문 보기 →
-              </a>
-            </div>
-          )}
         </div>
       </article>
-
-      {/* Sticky Share Button (Mobile) */}
-      <ShareButtons sticky />
 
       <Footer />
     </div>
