@@ -43,7 +43,7 @@ function RootLayout() {
   return (
     <>
       <Navigation />
-      <div className="pt-[58.5px] sm:pt-[72px]">
+      <div className="pt-18 sm:pt-16">
         <Outlet />
       </div>
       <ScrollToTopButton />

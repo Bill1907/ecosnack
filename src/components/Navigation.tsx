@@ -15,7 +15,7 @@ export function Navigation() {
             {isArticleDetail && (
               <div
                 onClick={() => router.history.back()}
-                className="inline-flex items-center gap-2 text-[#666666] hover:text-[#1a1a1a] transition-colors"
+                className="inline-flex items-center gap-2 text-[#666666] hover:text-[#1a1a1a] transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-5 h-5" />
                 <span className="hidden sm:inline text-sm font-medium">
@@ -30,7 +30,7 @@ export function Navigation() {
             <img
               src="https://cdn.heyvona.com/logo.png"
               alt="Logo"
-              className="object-contain w-28 h-28"
+              className="object-cover w-20 h-20"
             />
           </Link>
 

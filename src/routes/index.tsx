@@ -9,6 +9,7 @@ import {
   getArticlesByCategory,
 } from '../lib/articles.api'
 import type { Article, Category } from '../db/schema'
+import { CategorySchema } from '../db/schema'
 import { formatRelativeTime } from '@/lib/utils'
 
 // 검색 파라미터 타입 정의
@@ -20,8 +21,12 @@ export const Route = createFileRoute('/')({
   component: HomePage,
   // 검색 파라미터 유효성 검사
   validateSearch: (search: Record<string, unknown>): SearchParams => {
+    const validCategories = CategorySchema.options
+    const category = search.category as string | undefined
     return {
-      category: search.category as Category | undefined,
+      category: validCategories.includes(category as Category)
+        ? (category as Category)
+        : undefined,
     }
   },
   loader: async () => {
