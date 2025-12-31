@@ -1,0 +1,46 @@
+{
+  "event": "COMMENT",
+  "comments": [
+    {
+      "path": "server/routes/api/sitemap.xml.ts",
+      "position": 22,
+      "body": "⚠️ **보안 이슈**: `cause: error`로 전체 에러 객체를 노출하면 내부 DB 구조나 민감한 정보가 클라이언트에 전달될 수 있습니다.\n\n**권장 수정:**\n```typescript\n} catch (error) {\n  console.error('Error generating sitemap:', error)\n  throw new HTTPError('Failed to generate sitemap', {\n    status: 500,\n    // cause를 제거하거나, 프로덕션 환경에서는 제거\n  })\n}\n```"
+    },
+    {
+      "path": "server/routes/api/sitemap.xml.ts",
+      "position": 8,
+      "body": "🚀 **성능 최적화 필요**: 기사가 많아질수록 메모리와 응답 시간이 문제될 수 있습니다.\n\n**권장 수정 (메모리 캐싱):**\n```typescript\nlet cachedSitemap: { data: string; timestamp: number } | null = null\nconst CACHE_DURATION = 3 * 60 * 60 * 1000 // 3시간\n\nexport default defineEventHandler(async () => {\n  const now = Date.now()\n\n  if (cachedSitemap && now - cachedSitemap.timestamp < CACHE_DURATION) {\n    return new Response(cachedSitemap.data, {\n      headers: {\n        'Content-Type': 'application/xml',\n        'Cache-Control': 'public, max-age=10800, s-maxage=10800',\n      },\n    })\n  }\n\n  const articles = await getArticles()\n  const sitemap = generateSitemap(articles)\n  cachedSitemap = { data: sitemap, timestamp: now }\n\n  return new Response(sitemap, { /* ... */ })\n})\n```"
+    },
+    {
+      "path": "src/routes/article.$id.tsx",
+      "position": 42,
+      "body": "📍 **Canonical URL 누락**: 각 기사 페이지별 canonical URL이 필요합니다. 중복 콘텐츠 문제를 방지할 수 있습니다.\n\n**권장 추가:**\n```typescript\nreturn {\n  meta: getPageMeta({ /* ... */ }),\n  links: [\n    {\n      rel: 'canonical',\n      href: `${SITE_CONFIG.url}/article/${article.id}`,\n    },\n  ],\n}\n```"
+    },
+    {
+      "path": "src/lib/seo.ts",
+      "position": 235,
+      "body": "💡 **코드 개선**: 현재 `truncateDescription`이 단어 중간에서 잘릴 수 있습니다.\n\n**권장 수정:**\n```typescript\nexport function truncateDescription(text: string, maxLength = 160): string {\n  if (text.length <= maxLength) return text\n\n  // 단어 경계에서 자르기\n  const truncated = text.slice(0, maxLength - 3)\n  const lastSpace = truncated.lastIndexOf(' ')\n\n  return (lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated) + '...'\n}\n```"
+    },
+    {
+      "path": "src/lib/sitemap.ts",
+      "position": 61,
+      "body": "💡 **하드코딩 제거**: 카테고리를 하드코딩하는 대신 스키마에서 가져오는 것이 좋습니다.\n\n**권장 수정:**\n```typescript\nimport { CategorySchema } from '../db/schema'\n\nconst categories = CategorySchema.options.filter(c => c !== 'all')\n```"
+    },
+    {
+      "path": "src/routes/article.$id.tsx",
+      "position": 51,
+      "body": "🔒 **타입 안전성**: `article.keywords`의 타입 검증을 추가하면 더 안전합니다.\n\n**권장 수정:**\n```typescript\nkeywords: Array.isArray(article.keywords)\n  ? article.keywords\n  : [categoryName, '경제뉴스', '뉴스분석'],\n```"
+    },
+    {
+      "path": "public/robots.txt",
+      "position": 9,
+      "body": "🌍 **환경 설정**: Sitemap URL이 하드코딩되어 있어 개발/스테이징 환경에서 문제가 될 수 있습니다.\n\n**권장:**\n- 상대 경로 사용: `Sitemap: /api/sitemap.xml`\n- 또는 환경변수로 관리"
+    },
+    {
+      "path": "src/lib/seo.ts",
+      "position": 129,
+      "body": "📊 **JSON-LD 개선**: `image` 필드를 ImageObject 형식으로 변경하면 더 풍부한 검색 결과를 얻을 수 있습니다.\n\n**권장 수정:**\n```typescript\nimage: article.imageUrl ? {\n  '@type': 'ImageObject',\n  url: article.imageUrl,\n  width: 1200,\n  height: 630,\n} : SITE_CONFIG.image,\n```"
+    }
+  ],
+  "body": "# PR #15 리뷰 요약\n\n전반적으로 **매우 잘 구현된 SEO 아키텍처**입니다! 🎉\n\n## ✅ 긍정적인 점\n- 체계적인 SEO 구현 (메타 태그, JSON-LD, 사이트맵, robots.txt)\n- 재사용 가능한 유틸리티 함수\n- TypeScript 타입 안전성\n- 상세한 문서화\n\n## 🔧 주요 개선사항\n\n### High Priority (반드시 수정)\n1. ⚠️ **보안**: `sitemap.xml.ts`의 에러 처리 개선 필요\n2. 🚀 **성능**: Sitemap 메모리 캐싱 추가 필요\n\n### Medium Priority (권장)\n3. 📍 Canonical URL 추가\n4. 💡 코드 품질 개선 (truncateDescription, 하드코딩 제거)\n\n### Low Priority (선택)\n5. 타입 안전성, robots.txt 환경 설정, JSON-LD 개선\n\n## 테스트 체크리스트\n- [ ] `/api/sitemap.xml` 접근 테스트\n- [ ] Google Rich Results Test\n- [ ] Facebook/Twitter Card Validator\n- [ ] Lighthouse SEO 점수\n\n상세 리뷰는 각 파일의 코멘트를 참고해주세요!"
+}
