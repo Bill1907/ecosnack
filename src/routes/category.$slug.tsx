@@ -1,11 +1,74 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { getArticlesByCategory } from '@/lib/articles.api'
 import type { Article } from '@/db/schema'
+import {
+  getPageMeta,
+  getCollectionPageJsonLd,
+  getItemListJsonLd,
+  getBreadcrumbJsonLd,
+  SITE_CONFIG,
+  CATEGORY_NAMES,
+  CATEGORY_DESCRIPTIONS,
+} from '@/lib/seo'
 
 export const Route = createFileRoute('/category/$slug')({
   loader: async ({ params }) => {
     const articles = await getArticlesByCategory({ data: params.slug })
     return { articles, category: params.slug }
+  },
+  head: ({ loaderData }) => {
+    const { articles, category } = loaderData as {
+      articles: Article[]
+      category: string
+    }
+
+    const categoryName = CATEGORY_NAMES[category] || category
+    const categoryDescription =
+      CATEGORY_DESCRIPTIONS[category] ||
+      `${categoryName} 관련 최신 경제 뉴스와 분석`
+    const title = `${categoryName} 뉴스`
+    const path = `/category/${category}`
+
+    return {
+      meta: getPageMeta({
+        title,
+        description: categoryDescription,
+        path,
+        keywords: [categoryName, '경제뉴스', '뉴스분석', SITE_CONFIG.name],
+      }),
+      links: [
+        {
+          rel: 'canonical',
+          href: `${SITE_CONFIG.url}${path}`,
+        },
+      ],
+      scripts: [
+        {
+          type: 'application/ld+json',
+          children: JSON.stringify(
+            getCollectionPageJsonLd({
+              name: `${categoryName} 뉴스 - ${SITE_CONFIG.name}`,
+              description: categoryDescription,
+              url: path,
+              numberOfItems: articles.length,
+            }),
+          ),
+        },
+        {
+          type: 'application/ld+json',
+          children: JSON.stringify(
+            getBreadcrumbJsonLd([
+              { name: '홈', url: '/' },
+              { name: categoryName, url: path },
+            ]),
+          ),
+        },
+        {
+          type: 'application/ld+json',
+          children: JSON.stringify(getItemListJsonLd(articles)),
+        },
+      ],
+    }
   },
   component: CategoryPage,
 })

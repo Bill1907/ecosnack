@@ -38,11 +38,13 @@ export const Route = createFileRoute('/article/$id')({
       article.description || article.headlineSummary || article.title,
     )
 
+    const articlePath = `/article/${article.id}`
+
     return {
       meta: getPageMeta({
         title: article.title,
         description,
-        path: `/article/${article.id}`,
+        path: articlePath,
         image: article.imageUrl || undefined,
         type: 'article',
         publishedTime: article.pubDate?.toISOString(),
@@ -50,6 +52,12 @@ export const Route = createFileRoute('/article/$id')({
         author: article.source || SITE_CONFIG.name,
         keywords: article.keywords || [categoryName, '경제뉴스', '뉴스분석'],
       }),
+      links: [
+        {
+          rel: 'canonical',
+          href: `${SITE_CONFIG.url}${articlePath}`,
+        },
+      ],
       scripts: [
         {
           type: 'application/ld+json',

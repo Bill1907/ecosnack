@@ -236,3 +236,60 @@ export function truncateDescription(text: string, maxLength = 160): string {
   if (text.length <= maxLength) return text
   return text.slice(0, maxLength - 3) + '...'
 }
+
+/**
+ * CollectionPage JSON-LD 구조화 데이터 생성 (카테고리 페이지용)
+ */
+export function getCollectionPageJsonLd({
+  name,
+  description,
+  url,
+  numberOfItems,
+}: {
+  name: string
+  description: string
+  url: string
+  numberOfItems?: number
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name,
+    description,
+    url: `${SITE_CONFIG.url}${url}`,
+    inLanguage: 'ko-KR',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: SITE_CONFIG.name,
+      url: SITE_CONFIG.url,
+    },
+    ...(numberOfItems && { numberOfItems }),
+  }
+}
+
+/**
+ * ItemList JSON-LD 구조화 데이터 생성 (기사 목록용)
+ */
+export function getItemListJsonLd(articles: Article[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    numberOfItems: articles.length,
+    itemListElement: articles.slice(0, 10).map((article, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'NewsArticle',
+        headline: article.title,
+        description: article.description || article.headlineSummary || '',
+        url: `${SITE_CONFIG.url}/article/${article.id}`,
+        image: article.imageUrl || SITE_CONFIG.image,
+        datePublished: article.pubDate?.toISOString(),
+        author: {
+          '@type': 'Organization',
+          name: article.source || SITE_CONFIG.name,
+        },
+      },
+    })),
+  }
+}

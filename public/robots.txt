@@ -2,7 +2,8 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /_next/
+Disallow: /.vite/
+Disallow: /assets/
 Disallow: /admin/
 
 # Sitemap
