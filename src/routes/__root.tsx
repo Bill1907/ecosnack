@@ -11,25 +11,32 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import appCss from '../styles.css?url'
 import { Navigation } from '../components/Navigation'
 import { ScrollToTopButton } from '../components/ScrollToTopButton'
+import { getDefaultMeta, SITE_CONFIG } from '../lib/seo'
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
+      ...getDefaultMeta(),
       {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: 'HEY! Vona',
+        title: SITE_CONFIG.title,
       },
     ],
     links: [
       {
         rel: 'stylesheet',
         href: appCss,
+      },
+      {
+        rel: 'manifest',
+        href: '/manifest.json',
+      },
+      {
+        rel: 'icon',
+        href: '/favicon.ico',
+      },
+      {
+        rel: 'canonical',
+        href: SITE_CONFIG.url,
       },
     ],
   }),
@@ -53,7 +60,7 @@ function RootLayout() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <head>
         <HeadContent />
       </head>

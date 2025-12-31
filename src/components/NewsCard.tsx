@@ -27,7 +27,7 @@ export function NewsCard({
           <img
             src={imageUrl}
             alt={headline}
-            className="w-full object-cover mb-3"
+            className="w-full object-cover mb-3 rounded-sm"
           />
         )}
 
