@@ -1,23 +1,26 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
-import { NewsCard } from '../components/NewsCard'
+import {
+  createFileRoute,
+  useNavigate,
+  useRouterState,
+} from '@tanstack/react-router'
 import { CategoryFilter } from '../components/CategoryFilter'
 import { Footer } from '../components/Footer'
+import { NewsCard } from '../components/NewsCard'
+import { CategorySchema } from '../db/schema'
 import {
   getArticles,
-  getCategories,
   getArticlesByCategory,
+  getCategories,
 } from '../lib/articles.api'
-import type { Article, Category } from '../db/schema'
-import { CategorySchema } from '../db/schema'
-import { formatRelativeTime } from '@/lib/utils'
 import {
+  SITE_CONFIG,
+  getOrganizationJsonLd,
   getPageMeta,
   getWebsiteJsonLd,
-  getOrganizationJsonLd,
-  SITE_CONFIG,
 } from '../lib/seo'
+import type { Category } from '../db/schema'
 import { NewsCardSkeleton } from '@/components/NewsCardSkeleton'
+import { formatRelativeTime } from '@/lib/utils'
 
 // 검색 파라미터 타입 정의
 type SearchParams = {
@@ -56,9 +59,12 @@ export const Route = createFileRoute('/')({
       ],
     }
   },
-  loader: async () => {
+  loaderDeps: ({ search }) => ({ category: search.category }),
+  loader: async ({ deps }) => {
     const [articles, categories] = await Promise.all([
-      getArticles(),
+      deps.category
+        ? getArticlesByCategory({ data: deps.category })
+        : getArticles(),
       getCategories(),
     ])
     return { articles, categories }
@@ -66,43 +72,13 @@ export const Route = createFileRoute('/')({
 })
 
 function HomePage() {
-  const { articles: initialArticles, categories } = Route.useLoaderData()
+  const { articles, categories } = Route.useLoaderData()
   const navigate = useNavigate({ from: '/' })
   const { category: urlCategory } = Route.useSearch()
+  const routerState = useRouterState()
+  const isLoading = routerState.isLoading
 
-  const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>(
-    urlCategory || 'all',
-  )
-  const [articles, setArticles] = useState<Article[]>(initialArticles)
-  const [isLoading, setIsLoading] = useState(false)
-
-  // URL 파라미터가 변경되면 selectedCategory 업데이트
-  useEffect(() => {
-    setSelectedCategory(urlCategory || 'all')
-  }, [urlCategory])
-
-  useEffect(() => {
-    const fetchArticles = async () => {
-      setIsLoading(true)
-      try {
-        if (selectedCategory === 'all') {
-          const allArticles = await getArticles()
-          setArticles(allArticles)
-        } else {
-          const categoryArticles = await getArticlesByCategory({
-            data: selectedCategory,
-          })
-          setArticles(categoryArticles)
-        }
-      } catch (error) {
-        console.error('Failed to fetch articles:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchArticles()
-  }, [selectedCategory])
+  const selectedCategory = urlCategory || 'all'
 
   // 카테고리 변경 핸들러 - URL 파라미터 업데이트
   const handleCategoryChange = (category: Category | 'all') => {
