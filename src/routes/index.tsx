@@ -32,12 +32,17 @@ export const Route = createFileRoute('/')({
   // 검색 파라미터 유효성 검사
   validateSearch: (search: Record<string, unknown>): SearchParams => {
     const validCategories = CategorySchema.options
-    const category = search.category as string | undefined
-    return {
-      category: validCategories.includes(category as Category)
-        ? (category as Category)
-        : undefined,
+    const category = search.category
+
+    // 타입 가드를 사용한 안전한 검증
+    if (
+      typeof category === 'string' &&
+      validCategories.includes(category as Category)
+    ) {
+      return { category: category as Category }
     }
+
+    return { category: undefined }
   },
   head: () => {
     return {
