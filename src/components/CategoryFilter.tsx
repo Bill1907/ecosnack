@@ -31,8 +31,8 @@ export function CategoryFilter({
               onClick={() => onCategoryChange(category)}
               className={`px-4 py-2 rounded-full transition-colors whitespace-nowrap text-sm font-medium ${
                 isSelected
-                  ? 'bg-[#1a1a1a] text-white'
-                  : 'bg-[#f5f5f5] text-[#666666] hover:bg-[#e5e5e5]'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'
               }`}
               aria-pressed={isSelected}
               aria-label={`${categoryInfo.name} 카테고리 ${isSelected ? '선택됨' : '선택'}`}

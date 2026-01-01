@@ -83,7 +83,7 @@ function ArticleNotFound() {
       <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
         <span className="text-4xl">🤔</span>
       </div>
-      <h2 className="text-2xl font-bold text-[#1a1a1a] mb-3">
+      <h2 className="text-2xl font-bold text-text-primary mb-3">
         기사를 찾을 수 없습니다
       </h2>
       <p className="text-gray-600 mb-8 max-w-md">
@@ -93,7 +93,7 @@ function ArticleNotFound() {
       </p>
       <Link
         to="/"
-        className="px-6 py-3 bg-[#1a1a1a] text-white rounded-lg font-medium hover:bg-[#1a1a1a] transition-colors"
+        className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary transition-colors"
       >
         홈으로 돌아가기
       </Link>
@@ -124,14 +124,14 @@ function ArticleDetailPage() {
 
             {/* Region Badge */}
             {article.region && (
-              <span className="px-3 py-1 bg-[#f5f5f5] text-[#666666] rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-bg-secondary text-text-secondary rounded-full text-sm font-medium">
                 📍 {article.region}
               </span>
             )}
           </div>
 
           <h1
-            className="mb-4 sm:mb-6 text-[#1a1a1a]"
+            className="mb-4 sm:mb-6 text-text-primary"
             style={{
               fontSize: 'clamp(28px, 5vw, 40px)',
               fontWeight: '700',
@@ -143,7 +143,7 @@ function ArticleDetailPage() {
           </h1>
 
           <p
-            className="mb-6 text-[#666666]"
+            className="mb-6 text-text-secondary"
             style={{
               fontSize: 'clamp(16px, 3vw, 18px)',
               lineHeight: '1.6',
@@ -152,15 +152,15 @@ function ArticleDetailPage() {
             {article.headlineSummary || article.description || ''}
           </p>
 
-          <div className="flex flex-wrap items-center gap-4 pb-6 border-b border-[#e5e5e5]">
+          <div className="flex flex-wrap items-center gap-4 pb-6 border-b border-bg-tertiary">
             <div
-              className="flex items-center gap-2 text-[#999999]"
+              className="flex items-center gap-2 text-text-tertiary"
               style={{ fontSize: '14px' }}
             >
               <span>{article.source || '출처 없음'}</span>
             </div>
             <div
-              className="flex items-center gap-2 text-[#999999]"
+              className="flex items-center gap-2 text-text-tertiary"
               style={{ fontSize: '14px' }}
             >
               {/* <Clock className="w-4 h-4" />
@@ -202,7 +202,7 @@ function ArticleDetailPage() {
           {/* Main Description */}
           {article.description && (
             <p
-              className="text-[#1a1a1a]"
+              className="text-text-primary"
               style={{
                 fontSize: 'clamp(16px, 2.5vw, 18px)',
                 lineHeight: '1.8',
@@ -213,12 +213,12 @@ function ArticleDetailPage() {
           )}
           {/* Original Link */}
           {article.link && (
-            <div className="pt-4 pb-8 border-b mb-10 border-[#e5e5e5] flex justify-end">
+            <div className="pt-4 pb-8 border-b mb-10 border-bg-tertiary flex justify-end">
               <a
                 href={article.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-[#0066cc] hover:underline"
+                className="inline-flex items-center gap-2 text-link hover:underline"
                 style={{ fontSize: '15px', fontWeight: '500' }}
               >
                 원문 보기 →
@@ -235,12 +235,12 @@ function ArticleDetailPage() {
                   <div className="bg-amber-100 text-amber-600 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
                     🤔
                   </div>
-                  <h3 className="text-lg font-semibold text-[#1a1a1a] pt-1.5">
+                  <h3 className="text-lg font-semibold text-text-primary pt-1.5">
                     So What?
                   </h3>
                 </div>
                 <p
-                  className="text-[#1a1a1a] leading-relaxed"
+                  className="text-text-primary leading-relaxed"
                   style={{ fontSize: '16px', lineHeight: '1.7' }}
                 >
                   {article.soWhat.main_point}
@@ -251,12 +251,12 @@ function ArticleDetailPage() {
               <div className="px-6 pb-6 space-y-3">
                 {/* Market Signal */}
                 <div className="bg-white/70 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold mb-2 text-[#1a1a1a] flex items-center gap-2">
+                  <h4 className="text-sm font-semibold mb-2 text-text-primary flex items-center gap-2">
                     <span className="text-amber-600">📈</span>
                     시장 시그널
                   </h4>
                   <p
-                    className="text-[#666666] leading-relaxed"
+                    className="text-text-secondary leading-relaxed"
                     style={{ fontSize: '15px' }}
                   >
                     {article.soWhat.market_signal}
@@ -265,7 +265,7 @@ function ArticleDetailPage() {
 
                 {/* Time Horizon */}
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-[#1a1a1a]">
+                  <span className="text-sm font-semibold text-text-primary">
                     ⏱️ 영향 기간:
                   </span>
                   <span
@@ -291,7 +291,7 @@ function ArticleDetailPage() {
           {/* Impact Analysis */}
           {article.impactAnalysis && (
             <div className="mb-8 space-y-4">
-              <h3 className="text-lg font-semibold text-[#1a1a1a]">
+              <h3 className="text-lg font-semibold text-text-primary">
                 영향 분석 📊
               </h3>
 
@@ -324,12 +324,12 @@ function ArticleDetailPage() {
                   <div className="bg-slate-100 text-slate-600 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
                     📚
                   </div>
-                  <h3 className="text-lg font-semibold text-[#1a1a1a] pt-1.5">
+                  <h3 className="text-lg font-semibold text-text-primary pt-1.5">
                     배경 정보
                   </h3>
                 </div>
                 <p
-                  className="text-[#666666] leading-relaxed"
+                  className="text-text-secondary leading-relaxed"
                   style={{ fontSize: '15px', lineHeight: '1.7' }}
                 >
                   {article.relatedContext.background}
@@ -341,7 +341,7 @@ function ArticleDetailPage() {
                 {/* Related Events */}
                 {article.relatedContext.related_events.length > 0 && (
                   <div>
-                    <h4 className="text-sm font-semibold mb-2.5 text-[#1a1a1a] flex items-center gap-2">
+                    <h4 className="text-sm font-semibold mb-2.5 text-text-primary flex items-center gap-2">
                       {/* <span className="text-slate-600">🔗</span> */}
                       연관된 최근 이슈
                     </h4>
@@ -363,12 +363,12 @@ function ArticleDetailPage() {
                 {/* What to Watch */}
                 {article.relatedContext.what_to_watch && (
                   <div className="bg-white/70 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold mb-2 text-[#1a1a1a] flex items-center gap-2">
+                    <h4 className="text-sm font-semibold mb-2 text-text-primary flex items-center gap-2">
                       <span className="text-slate-600">👀</span>
                       주목할 후속 이벤트
                     </h4>
                     <p
-                      className="text-[#666666] leading-relaxed"
+                      className="text-text-secondary leading-relaxed"
                       style={{ fontSize: '14px' }}
                     >
                       {article.relatedContext.what_to_watch}
@@ -382,7 +382,7 @@ function ArticleDetailPage() {
           {/* Sentiment */}
           {article.sentiment && (
             <div className="mb-6 flex items-center gap-3">
-              {/* <span className="text-[#999999]" style={{ fontSize: '14px' }}>
+              {/* <span className="text-text-tertiary" style={{ fontSize: '14px' }}>
                 감정 분석:
               </span>
               <span
@@ -405,7 +405,7 @@ function ArticleDetailPage() {
                       ? '😐 복합적'
                       : '😶 중립'}
               </span> */}
-              <span className="text-[#999999]" style={{ fontSize: '13px' }}>
+              <span className="text-text-tertiary" style={{ fontSize: '13px' }}>
                 신뢰도: {Math.round(article.sentiment.confidence * 100)}%
               </span>
             </div>
@@ -413,12 +413,12 @@ function ArticleDetailPage() {
 
           {/* Keywords/Tags */}
           {article.keywords && article.keywords.length > 0 && (
-            <div className="mt-8 pt-8 border-t border-[#e5e5e5]">
+            <div className="mt-8 pt-8 border-t border-bg-tertiary">
               <div className="flex flex-wrap gap-2">
                 {article.keywords.map((keyword: string) => (
                   <span
                     key={keyword}
-                    className="px-3 py-1 bg-[#f5f5f5] text-[#666666] rounded-full hover:bg-[#e5e5e5] transition-colors cursor-pointer"
+                    className="px-3 py-1 bg-bg-secondary text-text-secondary rounded-full hover:bg-[#e5e5e5] transition-colors cursor-pointer"
                     style={{ fontSize: '13px', fontWeight: '500' }}
                   >
                     #{keyword}
