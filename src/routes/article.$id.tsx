@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { CategoryBadge } from '../components/CategoryBadge'
 import { ShareButtons } from '../components/feature/article/ShareButtons'
 import { Footer } from '../components/Footer'
@@ -6,12 +6,12 @@ import { ImpactItem } from '../components/feature/article/ImpactItem'
 import { getArticleById } from '../lib/articles.api'
 import { formatRelativeTime } from '../lib/utils'
 import {
-  getPageMeta,
+  CATEGORY_NAMES,
+  SITE_CONFIG,
   getArticleJsonLd,
   getBreadcrumbJsonLd,
+  getPageMeta,
   truncateDescription,
-  SITE_CONFIG,
-  CATEGORY_NAMES,
 } from '../lib/seo'
 
 export const Route = createFileRoute('/article/$id')({
@@ -20,17 +20,15 @@ export const Route = createFileRoute('/article/$id')({
     return { article }
   },
   head: ({ loaderData }) => {
-    if (!loaderData?.article) {
-      return {
-        meta: getPageMeta({
-          title: '기사를 찾을 수 없습니다 - ' + SITE_CONFIG.title,
-          description: '요청하신 기사가 존재하지 않습니다.',
-          path: '/article',
-        }),
-      }
+    if (!loaderData) {
+      return {}
     }
 
     const { article } = loaderData
+    if (!article) {
+      return {}
+    }
+
     const categoryName = article.category
       ? CATEGORY_NAMES[article.category]
       : '경제'
@@ -168,7 +166,9 @@ function ArticleDetailPage() {
               {/* <Clock className="w-4 h-4" />
               <span>{calculateReadTime(article)} 분량</span>
               <span>·</span> */}
-              <span>{formatRelativeTime(article.pubDate)}</span>
+              <span suppressHydrationWarning>
+                {formatRelativeTime(article.pubDate)}
+              </span>
               {article.importanceScore && (
                 <>
                   <span>·</span>
@@ -296,28 +296,22 @@ function ArticleDetailPage() {
               </h3>
 
               {/* Investors Impact */}
-              {article.impactAnalysis.investors && (
-                <ImpactItem
-                  type="investors"
-                  data={article.impactAnalysis.investors}
-                />
-              )}
+              <ImpactItem
+                type="investors"
+                data={article.impactAnalysis.investors}
+              />
 
               {/* Workers Impact */}
-              {article.impactAnalysis.workers && (
-                <ImpactItem
-                  type="workers"
-                  data={article.impactAnalysis.workers}
-                />
-              )}
+              <ImpactItem
+                type="workers"
+                data={article.impactAnalysis.workers}
+              />
 
               {/* Consumers Impact */}
-              {article.impactAnalysis.consumers && (
-                <ImpactItem
-                  type="consumers"
-                  data={article.impactAnalysis.consumers}
-                />
-              )}
+              <ImpactItem
+                type="consumers"
+                data={article.impactAnalysis.consumers}
+              />
             </div>
           )}
 
@@ -345,27 +339,26 @@ function ArticleDetailPage() {
               {/* Content */}
               <div className="px-6 pb-6 space-y-4">
                 {/* Related Events */}
-                {article.relatedContext.related_events &&
-                  article.relatedContext.related_events.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold mb-2.5 text-[#1a1a1a] flex items-center gap-2">
-                        {/* <span className="text-slate-600">🔗</span> */}
-                        연관된 최근 이슈
-                      </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {article.relatedContext.related_events.map(
-                          (event: string, i: number) => (
-                            <span
-                              key={i}
-                              className="px-3 py-1.5 bg-white text-slate-700 rounded-lg text-sm font-medium border border-slate-200/50 transition-all hover:scale-105 hover:border-slate-300"
-                            >
-                              {event}
-                            </span>
-                          ),
-                        )}
-                      </div>
+                {article.relatedContext.related_events.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2.5 text-[#1a1a1a] flex items-center gap-2">
+                      {/* <span className="text-slate-600">🔗</span> */}
+                      연관된 최근 이슈
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {article.relatedContext.related_events.map(
+                        (event: string, i: number) => (
+                          <span
+                            key={i}
+                            className="px-3 py-1.5 bg-white text-slate-700 rounded-lg text-sm font-medium border border-slate-200/50 transition-all hover:scale-105 hover:border-slate-300"
+                          >
+                            {event}
+                          </span>
+                        ),
+                      )}
                     </div>
-                  )}
+                  </div>
+                )}
 
                 {/* What to Watch */}
                 {article.relatedContext.what_to_watch && (
