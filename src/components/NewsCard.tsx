@@ -1,49 +1,53 @@
 import { Link } from '@tanstack/react-router'
 import { CategoryBadge } from './CategoryBadge'
+import type { Article } from '../db/schema'
+import { formatRelativeTime } from '../lib/utils'
 
 interface NewsCardProps {
-  id: number
-  category: string
-  headline: string
-  summary: string
-  source: string
-  timestamp: string
-  imageUrl: string
+  article: Article
 }
 
-export function NewsCard({
-  id,
-  category,
-  headline,
-  summary,
-  source,
-  timestamp,
-  imageUrl,
-}: NewsCardProps) {
+export function NewsCard({ article }: NewsCardProps) {
+  const {
+    id,
+    category,
+    title,
+    description,
+    headlineSummary,
+    source,
+    pubDate,
+    imageUrl,
+  } = article
+
+  const displayCategory = category || '기타'
+  const displaySummary = description || headlineSummary || ''
+  const displayTimestamp = formatRelativeTime(pubDate)
+  const displaySource = source || ''
+
   return (
     <Link to={`/article/$id`} params={{ id: String(id) }}>
       <article className="bg-white border border-bg-tertiary p-4 sm:p-6 rounded-sm transition-all duration-300 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl origin-center">
         {imageUrl && (
           <img
             src={imageUrl}
-            alt={headline}
+            alt={title}
             className="w-full object-cover mb-3 rounded-sm"
           />
         )}
 
         <h2 className="mb-3 text-text-primary line-clamp-3 text-responsive-lg font-bold leading-tight">
-          {headline}
+          {title}
         </h2>
 
         <p className="mb-4 text-text-secondary line-clamp-2 text-responsive-sm leading-relaxed">
-          {summary}
+          {displaySummary}
         </p>
 
         <div className="flex items-center gap-2 text-text-tertiary text-xs">
-          <CategoryBadge category={category} />
-          <span>{source}</span>
+          <CategoryBadge category={displayCategory} />
+          <span>{displaySource}</span>
           <span>·</span>
-          <span suppressHydrationWarning>{timestamp}</span>
+          <span suppressHydrationWarning>{displayTimestamp}</span>
         </div>
       </article>
     </Link>

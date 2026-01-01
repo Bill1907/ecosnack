@@ -12,6 +12,7 @@ import appCss from '../styles.css?url'
 import { Navigation } from '../components/Navigation'
 import { ScrollToTopButton } from '../components/ScrollToTopButton'
 import { SITE_CONFIG, getDefaultMeta } from '../lib/seo'
+import { Footer } from '@/components/Footer'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -60,6 +61,7 @@ function RootLayout() {
       <div className="pt-18 sm:pt-16">
         <Outlet />
       </div>
+      <Footer />
       <ScrollToTopButton />
     </>
   )

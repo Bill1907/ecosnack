@@ -1,6 +1,5 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { ArticleHeader } from '../components/feature/article/ArticleHeader'
-import { Footer } from '../components/Footer'
 import { ImpactItem } from '../components/feature/article/ImpactItem'
 import { getArticleById } from '../lib/articles.api'
 import {
@@ -84,7 +83,6 @@ function ArticleDetailPage() {
     return (
       <div className="bg-white min-h-screen flex flex-col">
         <ArticleNotFound />
-        <Footer />
       </div>
     )
   }
@@ -319,8 +317,6 @@ function ArticleDetailPage() {
           )}
         </div>
       </article>
-
-      <Footer />
     </div>
   )
 }

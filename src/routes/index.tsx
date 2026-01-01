@@ -4,7 +4,6 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { CategoryFilter } from '../components/CategoryFilter'
-import { Footer } from '../components/Footer'
 import { NewsCard } from '../components/NewsCard'
 import { CategorySchema } from '../db/schema'
 import {
@@ -20,7 +19,6 @@ import {
 } from '../lib/seo'
 import type { Category } from '../db/schema'
 import { NewsCardSkeleton } from '@/components/NewsCardSkeleton'
-import { formatRelativeTime } from '@/lib/utils'
 
 // 검색 파라미터 타입 정의
 type SearchParams = {
@@ -95,42 +93,26 @@ function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Main Content */}
-      <main className="flex-1">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
-          {/* Category Filter */}
-          <CategoryFilter
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategoryChange={handleCategoryChange}
-          />
+    <main className="flex-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+        {/* Category Filter */}
+        <CategoryFilter
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onCategoryChange={handleCategoryChange}
+        />
 
-          {/* News Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            {isLoading
-              ? Array.from({ length: 6 }).map((_, index) => (
-                  <NewsCardSkeleton key={`skeleton-${index}`} />
-                ))
-              : articles.map((article) => (
-                  <NewsCard
-                    key={article.id}
-                    id={article.id}
-                    category={article.category || '기타'}
-                    headline={article.title}
-                    summary={
-                      article.description || article.headlineSummary || ''
-                    }
-                    source={article.source || ''}
-                    timestamp={formatRelativeTime(article.pubDate)}
-                    imageUrl={article.imageUrl || ''}
-                  />
-                ))}
-          </div>
+        {/* News Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          {isLoading
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <NewsCardSkeleton key={`skeleton-${index}`} />
+              ))
+            : articles.map((article) => (
+                <NewsCard key={article.id} article={article} />
+              ))}
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </main>
   )
 }
