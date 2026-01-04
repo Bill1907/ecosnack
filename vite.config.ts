@@ -17,4 +17,18 @@ export default defineConfig({
     nitro({ preset: 'bun' }),
     viteReact(),
   ],
+  optimizeDeps: {
+    include: [
+      'use-sync-external-store/shim',
+      'use-sync-external-store/shim/with-selector',
+      '@clerk/tanstack-react-start',
+      'cookie',
+    ],
+    esbuildOptions: {
+      target: 'esnext',
+    },
+  },
+  ssr: {
+    noExternal: ['use-sync-external-store', '@clerk/tanstack-react-start'],
+  },
 })

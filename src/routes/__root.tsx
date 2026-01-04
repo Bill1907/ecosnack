@@ -12,6 +12,7 @@ import appCss from '../styles.css?url'
 import { Navigation } from '../components/Navigation'
 import { ScrollToTopButton } from '../components/ScrollToTopButton'
 import { SITE_CONFIG, getDefaultMeta } from '../lib/seo'
+import { ClerkProvider } from '@clerk/tanstack-react-start'
 import { Footer } from '@/components/Footer'
 
 export const Route = createRootRoute({
@@ -69,28 +70,30 @@ function RootLayout() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
-      <head>
-        <HeadContent />
-      </head>
-      <body suppressHydrationWarning>
-        {children}
-        {typeof window !== 'undefined' && (
-          <TanStackDevtools
-            config={{
-              position: 'bottom-right',
-            }}
-            plugins={[
-              {
-                name: 'Tanstack Router',
-                render: <TanStackRouterDevtoolsPanel />,
-              },
-            ]}
-          />
-        )}
-        <Scripts />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="ko">
+        <head>
+          <HeadContent />
+        </head>
+        <body suppressHydrationWarning>
+          {children}
+          {typeof window !== 'undefined' && (
+            <TanStackDevtools
+              config={{
+                position: 'bottom-right',
+              }}
+              plugins={[
+                {
+                  name: 'Tanstack Router',
+                  render: <TanStackRouterDevtoolsPanel />,
+                },
+              ]}
+            />
+          )}
+          <Scripts />
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }
 

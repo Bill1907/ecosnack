@@ -1,4 +1,10 @@
 import { Link, useRouter, useRouterState } from '@tanstack/react-router'
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from '@clerk/tanstack-react-start'
 import { ArrowLeft } from 'lucide-react'
 
 export function Navigation() {
@@ -34,8 +40,25 @@ export function Navigation() {
             />
           </Link>
 
-          {/* 오른쪽 여백 (레이아웃 균형을 위해) */}
-          <div className="flex-1"></div>
+          {/* 로그인/사용자 버튼 */}
+          <div className="flex-1 flex justify-end">
+            <SignedIn>
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: 'w-9 h-9',
+                  },
+                }}
+              />
+            </SignedIn>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="px-4 py-2 text-sm font-medium text-white bg-[#1a1a1a] rounded-lg hover:bg-[#333] transition-colors">
+                  로그인
+                </button>
+              </SignInButton>
+            </SignedOut>
+          </div>
         </div>
       </div>
     </header>
