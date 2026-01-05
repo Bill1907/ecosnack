@@ -14,6 +14,7 @@ import {
 import { TIME_HORIZON_CONFIG } from '@/lib/const'
 import ArticleNotFound from '@/components/feature/article/ArticleNotFound'
 import { Footer } from '@/components/Footer'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute('/article/$id')({
   loader: async ({ params }) => {
@@ -111,6 +112,10 @@ function ArticleDetailPage() {
       </div>
     )
   }
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   return (
     <div className="bg-white min-h-screen flex flex-col">
