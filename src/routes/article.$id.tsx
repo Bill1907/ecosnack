@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { SignedIn, SignedOut, SignInButton } from '@clerk/tanstack-react-start'
 import { ArticleHeader } from '../components/feature/article/ArticleHeader'
 import { ImpactItem } from '../components/feature/article/ImpactItem'
+import { LazyImage } from '../components/LazyImage'
 import { getArticleById } from '../lib/articles.api'
 import {
   CATEGORY_NAMES,
@@ -132,10 +133,11 @@ function ArticleDetailPage() {
             {/* Article Image */}
             {article.imageUrl && (
               <div className="mb-6 rounded-sm overflow-hidden shadow-sm">
-                <img
+                <LazyImage
                   src={article.imageUrl}
                   alt={article.title}
                   className="w-full h-auto object-cover max-h-[400px]"
+                  priority={true}
                 />
               </div>
             )}

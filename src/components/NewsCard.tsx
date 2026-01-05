@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { CategoryBadge } from './CategoryBadge'
+import { LazyImage } from './LazyImage'
 import type { Article } from '../db/schema'
 import { formatRelativeTime } from '../lib/utils'
 
@@ -28,7 +29,7 @@ export function NewsCard({ article }: NewsCardProps) {
     <Link to={`/article/$id`} params={{ id: String(id) }}>
       <article className="bg-white border border-bg-tertiary p-4 sm:p-6 rounded-sm transition-all duration-300 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl origin-center">
         {imageUrl && (
-          <img
+          <LazyImage
             src={imageUrl}
             alt={title}
             className="w-full object-cover mb-3 rounded-sm"
