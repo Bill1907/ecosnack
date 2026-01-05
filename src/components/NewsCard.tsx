@@ -32,7 +32,7 @@ export function NewsCard({ article }: NewsCardProps) {
           <LazyImage
             src={imageUrl}
             alt={title}
-            className="w-full object-cover mb-3 rounded-sm"
+            className="w-full aspect-video object-cover mb-3 rounded-sm bg-gray-100 dark:bg-gray-800"
           />
         )}
 

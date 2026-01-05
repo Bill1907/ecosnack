@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getOptimizedImageUrl } from '../lib/utils'
 
 interface LazyImageProps {
   src: string
@@ -32,8 +33,16 @@ export function LazyImage({
       )}
 
       {/* Native lazy loading 사용 - Lighthouse Performance 최적화 */}
+      {/* Native lazy loading 사용 - Lighthouse Performance 최적화 */}
       <img
-        src={src}
+        src={getOptimizedImageUrl(src, width || 800)}
+        srcSet={`
+          ${getOptimizedImageUrl(src, 640)} 640w,
+          ${getOptimizedImageUrl(src, 768)} 768w,
+          ${getOptimizedImageUrl(src, 1024)} 1024w,
+          ${getOptimizedImageUrl(src, 1280)} 1280w
+        `}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         alt={alt}
         className={`${className} transition-opacity duration-300 ${
           isLoaded ? 'opacity-100' : 'opacity-0'
