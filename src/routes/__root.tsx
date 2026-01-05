@@ -15,6 +15,7 @@ import { ScrollToTopButton } from '../components/ScrollToTopButton'
 import { SITE_CONFIG, getDefaultMeta } from '../lib/seo'
 import { ClerkProvider } from '@clerk/tanstack-react-start'
 import { Footer } from '@/components/Footer'
+import { ThemeProvider } from '@/lib/theme'
 
 interface RouterContext {
   queryClient: QueryClient
@@ -48,6 +49,19 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
     scripts: [
       {
+        children: `
+          (function() {
+            try {
+              const theme = localStorage.getItem('theme');
+              const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              if (theme === 'dark' || (!theme && systemPrefersDark)) {
+                document.documentElement.classList.add('dark');
+              }
+            } catch (e) {}
+          })();
+        `,
+      },
+      {
         src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7913636156841478',
         async: true,
         crossOrigin: 'anonymous',
@@ -76,28 +90,30 @@ function RootLayout() {
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <html lang="ko">
-        <head>
-          <HeadContent />
-        </head>
-        <body suppressHydrationWarning>
-          {children}
-          {typeof window !== 'undefined' && (
-            <TanStackDevtools
-              config={{
-                position: 'bottom-right',
-              }}
-              plugins={[
-                {
-                  name: 'Tanstack Router',
-                  render: <TanStackRouterDevtoolsPanel />,
-                },
-              ]}
-            />
-          )}
-          <Scripts />
-        </body>
-      </html>
+      <ThemeProvider>
+        <html lang="ko" suppressHydrationWarning>
+          <head>
+            <HeadContent />
+          </head>
+          <body suppressHydrationWarning>
+            {children}
+            {typeof window !== 'undefined' && (
+              <TanStackDevtools
+                config={{
+                  position: 'bottom-right',
+                }}
+                plugins={[
+                  {
+                    name: 'Tanstack Router',
+                    render: <TanStackRouterDevtoolsPanel />,
+                  },
+                ]}
+              />
+            )}
+            <Scripts />
+          </body>
+        </html>
+      </ThemeProvider>
     </ClerkProvider>
   )
 }
@@ -105,9 +121,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 function NotFound() {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
-      <h1 className="text-4xl font-bold">404</h1>
-      <p className="text-gray-600">페이지를 찾을 수 없습니다</p>
-      <Link to="/" className="text-blue-600 hover:underline">
+      <h1 className="text-4xl font-bold dark:text-white">404</h1>
+      <p className="text-gray-600 dark:text-gray-400">
+        페이지를 찾을 수 없습니다
+      </p>
+      <Link to="/" className="text-blue-600 dark:text-blue-400 hover:underline">
         홈으로 돌아가기
       </Link>
     </div>

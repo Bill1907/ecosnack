@@ -32,7 +32,7 @@ export function CategoryFilter({
               className={`px-4 py-2 rounded-full transition-colors whitespace-nowrap text-sm font-medium ${
                 isSelected
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'
+                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
               }`}
               aria-pressed={isSelected}
               aria-label={`${categoryInfo.name} 카테고리 ${isSelected ? '선택됨' : '선택'}`}
