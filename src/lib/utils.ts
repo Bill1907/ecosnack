@@ -28,23 +28,3 @@ export function calculateReadTime(article: Article): string {
   const minutes = Math.max(1, Math.ceil(textLength.length / 500)) // 대략 500자당 1분
   return `${minutes}분`
 }
-
-export function getOptimizedImageUrl(
-  url: string,
-  width?: number,
-  quality: number = 80,
-): string {
-  if (!url) return ''
-  // 로컬 이미지나 이미 최적화된 URL은 건너뛰기
-  if (url.startsWith('/') || url.includes('wsrv.nl')) return url
-
-  // wsrv.nl 이미지 프록시 사용 (무료, 오픈소스)
-  // WebP 포맷 변환, 리사이징, 압축 적용
-  const params = new URLSearchParams()
-  params.append('url', url)
-  params.append('output', 'webp')
-  params.append('q', quality.toString())
-  if (width) params.append('w', width.toString())
-
-  return `https://wsrv.nl/?${params.toString()}`
-}
