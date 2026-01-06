@@ -94,7 +94,7 @@ function LoginRequired() {
         무료로 가입하고 모든 콘텐츠를 확인하세요!
       </p>
       <SignInButton mode="modal">
-        <button className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
+        <button className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90">
           로그인하기
         </button>
       </SignInButton>
@@ -353,7 +353,7 @@ function ArticleDetailPage() {
                   {article.keywords.map((keyword: string) => (
                     <span
                       key={keyword}
-                      className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 transition-colors cursor-pointer"
+                      className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 cursor-pointer"
                       style={{ fontSize: '13px', fontWeight: '500' }}
                     >
                       #{keyword}

@@ -32,7 +32,6 @@ import { ScrollToTopButton } from '../components/ScrollToTopButton'
 import { SITE_CONFIG, getDefaultMeta } from '../lib/seo'
 import { ClerkProvider } from '@clerk/tanstack-react-start'
 import { Footer } from '@/components/Footer'
-import { ThemeProvider } from '@/lib/theme'
 
 interface RouterContext {
   queryClient: QueryClient
@@ -86,10 +85,25 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         children: `
           (function() {
             try {
-              const theme = localStorage.getItem('theme');
-              const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-              if (theme === 'dark' || (!theme && systemPrefersDark)) {
+              var themeStorage = localStorage.getItem('theme-storage');
+              var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              var isDark = systemPrefersDark;
+
+              if (themeStorage) {
+                try {
+                  var parsed = JSON.parse(themeStorage);
+                  if (parsed && parsed.state && typeof parsed.state.theme === 'string') {
+                    isDark = parsed.state.theme === 'dark';
+                  }
+                } catch (e) {
+                  console.error('Failed to parse theme-storage:', e);
+                }
+              }
+
+              if (isDark) {
                 document.documentElement.classList.add('dark');
+              } else {
+                document.documentElement.classList.remove('dark');
               }
             } catch (e) {}
           })();
@@ -124,35 +138,33 @@ function RootLayout() {
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <ThemeProvider>
-        <html lang="ko" suppressHydrationWarning>
-          <head>
-            <HeadContent />
-          </head>
-          <body
-            className="bg-background text-foreground"
-            suppressHydrationWarning
-          >
-            {children}
-            {typeof window !== 'undefined' && (
-              <React.Suspense fallback={null}>
-                <TanStackDevtools
-                  config={{
-                    position: 'bottom-right',
-                  }}
-                  plugins={[
-                    {
-                      name: 'Tanstack Router',
-                      render: <TanStackRouterDevtoolsPanel />,
-                    },
-                  ]}
-                />
-              </React.Suspense>
-            )}
-            <Scripts />
-          </body>
-        </html>
-      </ThemeProvider>
+      <html lang="ko" suppressHydrationWarning>
+        <head>
+          <HeadContent />
+        </head>
+        <body
+          className="bg-background text-foreground"
+          suppressHydrationWarning
+        >
+          {children}
+          {typeof window !== 'undefined' && (
+            <React.Suspense fallback={null}>
+              <TanStackDevtools
+                config={{
+                  position: 'bottom-right',
+                }}
+                plugins={[
+                  {
+                    name: 'Tanstack Router',
+                    render: <TanStackRouterDevtoolsPanel />,
+                  },
+                ]}
+              />
+            </React.Suspense>
+          )}
+          <Scripts />
+        </body>
+      </html>
     </ClerkProvider>
   )
 }
@@ -160,11 +172,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 function NotFound() {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
-      <h1 className="text-4xl font-bold dark:text-white">404</h1>
-      <p className="text-gray-600 dark:text-gray-400">
-        페이지를 찾을 수 없습니다
-      </p>
-      <Link to="/" className="text-blue-600 dark:text-blue-400 hover:underline">
+      <h1 className="text-4xl font-bold text-foreground">404</h1>
+      <p className="text-muted-foreground">페이지를 찾을 수 없습니다</p>
+      <Link to="/" className="text-primary hover:underline">
         홈으로 돌아가기
       </Link>
     </div>

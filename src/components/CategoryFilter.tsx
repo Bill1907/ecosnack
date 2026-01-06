@@ -29,7 +29,7 @@ export function CategoryFilter({
             <button
               key={category}
               onClick={() => onCategoryChange(category)}
-              className={`px-4 py-2 rounded-full transition-all whitespace-nowrap text-sm font-medium border ${
+              className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium border ${
                 isSelected
                   ? 'bg-primary border-primary text-primary-foreground shadow-sm'
                   : 'bg-card border-border text-muted-foreground hover:bg-secondary hover:text-foreground'
