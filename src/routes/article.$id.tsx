@@ -105,6 +105,10 @@ function LoginRequired() {
 function ArticleDetailPage() {
   const { article } = Route.useLoaderData()
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   if (!article) {
     return (
       <div className="bg-white min-h-screen flex flex-col">
@@ -112,10 +116,6 @@ function ArticleDetailPage() {
       </div>
     )
   }
-
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
 
   return (
     <div className="bg-white min-h-screen flex flex-col">
