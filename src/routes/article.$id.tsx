@@ -14,6 +14,7 @@ import {
 import { TIME_HORIZON_CONFIG } from '@/lib/const'
 import ArticleNotFound from '@/components/feature/article/ArticleNotFound'
 import { Footer } from '@/components/Footer'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute('/article/$id')({
   loader: async ({ params }) => {
@@ -104,6 +105,10 @@ function LoginRequired() {
 function ArticleDetailPage() {
   const { article } = Route.useLoaderData()
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   if (!article) {
     return (
       <div className="bg-background min-h-screen flex flex-col">
@@ -135,7 +140,9 @@ function ArticleDetailPage() {
                 <img
                   src={article.imageUrl}
                   alt={article.title}
-                  className="w-full h-auto object-cover max-h-[400px]"
+                  className="w-full aspect-video object-cover max-h-[400px] bg-gray-100 dark:bg-gray-800"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             )}

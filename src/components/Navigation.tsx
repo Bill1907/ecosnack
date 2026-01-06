@@ -38,6 +38,10 @@ export function Navigation() {
               src="https://cdn.heyvona.com/logo.png"
               alt="Logo"
               className="object-cover w-44 h-16"
+              fetchPriority="high"
+              decoding="async"
+              width={144}
+              height={64}
             />
           </Link>
 
