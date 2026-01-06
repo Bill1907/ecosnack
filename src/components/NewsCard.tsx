@@ -26,7 +26,7 @@ export function NewsCard({ article }: NewsCardProps) {
 
   return (
     <Link to={`/article/$id`} params={{ id: String(id) }}>
-      <article className="bg-card border p-4 sm:p-6 rounded-sm transition-all duration-300 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl origin-center">
+      <article className="bg-card border p-4 sm:p-6 rounded-sm transition-scale duration-300 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl origin-center">
         {imageUrl && (
           <img
             src={imageUrl}

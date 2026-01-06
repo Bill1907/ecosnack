@@ -14,7 +14,7 @@ export function Navigation() {
   const isArticleDetail = state.location.pathname.startsWith('/article/')
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b bg-white/95 dark:bg-card/95 backdrop-blur-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className=" flex items-center justify-between">
           {/* 백 버튼 (디테일 페이지에서만 표시) */}

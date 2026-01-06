@@ -95,7 +95,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <head>
             <HeadContent />
           </head>
-          <body suppressHydrationWarning>
+          <body
+            className="bg-background text-foreground"
+            suppressHydrationWarning
+          >
             {children}
             {typeof window !== 'undefined' && (
               <TanStackDevtools
