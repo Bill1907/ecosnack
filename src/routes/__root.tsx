@@ -31,7 +31,6 @@ import { Navigation } from '../components/Navigation'
 import { ScrollToTopButton } from '../components/ScrollToTopButton'
 import { SITE_CONFIG, getDefaultMeta } from '../lib/seo'
 import { ClerkProvider } from '@clerk/tanstack-react-start'
-import { Footer } from '@/components/Footer'
 
 interface RouterContext {
   queryClient: QueryClient
@@ -129,7 +128,6 @@ function RootLayout() {
       <div className="pt-16 sm-pt-14">
         <Outlet />
       </div>
-      <Footer />
       <ScrollToTopButton />
     </>
   )
