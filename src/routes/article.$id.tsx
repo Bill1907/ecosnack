@@ -140,7 +140,9 @@ function ArticleDetailPage() {
                 <img
                   src={article.imageUrl}
                   alt={article.title}
-                  className="w-full h-auto object-cover max-h-[400px]"
+                  className="w-full aspect-video object-cover max-h-[400px] bg-gray-100 dark:bg-gray-800"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             )}

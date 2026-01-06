@@ -6,8 +6,25 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
+import React from 'react'
+
+const TanStackDevtools =
+  process.env.NODE_ENV === 'production'
+    ? () => null
+    : React.lazy(() =>
+        import('@tanstack/react-devtools').then((res) => ({
+          default: res.TanStackDevtools,
+        })),
+      )
+
+const TanStackRouterDevtoolsPanel =
+  process.env.NODE_ENV === 'production'
+    ? () => null
+    : React.lazy(() =>
+        import('@tanstack/react-router-devtools').then((res) => ({
+          default: res.TanStackRouterDevtoolsPanel,
+        })),
+      )
 
 import appCss from '../styles.css?url'
 import { Navigation } from '../components/Navigation'
@@ -32,6 +49,23 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       {
         rel: 'stylesheet',
         href: appCss,
+      },
+      {
+        rel: 'preconnect',
+        href: 'https://fonts.googleapis.com',
+      },
+      {
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossOrigin: 'anonymous',
+      },
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap',
+      },
+      {
+        rel: 'stylesheet',
+        href: 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css',
       },
       {
         rel: 'manifest',
@@ -83,17 +117,19 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <body suppressHydrationWarning>
           {children}
           {typeof window !== 'undefined' && (
-            <TanStackDevtools
-              config={{
-                position: 'bottom-right',
-              }}
-              plugins={[
-                {
-                  name: 'Tanstack Router',
-                  render: <TanStackRouterDevtoolsPanel />,
-                },
-              ]}
-            />
+            <React.Suspense fallback={null}>
+              <TanStackDevtools
+                config={{
+                  position: 'bottom-right',
+                }}
+                plugins={[
+                  {
+                    name: 'Tanstack Router',
+                    render: <TanStackRouterDevtoolsPanel />,
+                  },
+                ]}
+              />
+            </React.Suspense>
           )}
           <Scripts />
         </body>
