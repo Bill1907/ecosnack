@@ -142,6 +142,7 @@ function ArticleDetailPage() {
                   alt={article.title}
                   className="w-full aspect-video object-cover max-h-[400px] bg-gray-100 dark:bg-gray-800"
                   loading="lazy"
+                  decoding="async"
                 />
               </div>
             )}

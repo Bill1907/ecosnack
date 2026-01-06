@@ -38,6 +38,7 @@ export function NewsCard({ article }: NewsCardProps) {
             src={imageUrl}
             alt={title}
             loading="lazy"
+            decoding="async"
             className="w-full aspect-video object-cover mb-3 rounded-sm bg-gray-100 dark:bg-gray-800"
           />
         )}
