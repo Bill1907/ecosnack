@@ -6,6 +6,7 @@ import {
   varchar,
   jsonb,
   integer,
+  unique,
 } from 'drizzle-orm/pg-core'
 import { z } from 'zod'
 
@@ -144,3 +145,41 @@ export const categoryStats = pgTable('category_stats', {
 })
 
 export type CategoryStat = typeof categoryStats.$inferSelect
+
+// ============================================
+// Users 테이블 (Clerk 사용자 동기화)
+// ============================================
+
+export const users = pgTable('users', {
+  clerkId: varchar('clerk_id', { length: 255 }).primaryKey(),
+  email: varchar('email', { length: 255 }),
+  name: varchar('name', { length: 255 }),
+  imageUrl: text('image_url'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+})
+
+export type User = typeof users.$inferSelect
+export type NewUser = typeof users.$inferInsert
+
+// ============================================
+// Bookmarks 테이블 (사용자-기사 북마크)
+// ============================================
+
+export const bookmarks = pgTable(
+  'bookmarks',
+  {
+    id: serial('id').primaryKey(),
+    userId: varchar('user_id', { length: 255 })
+      .notNull()
+      .references(() => users.clerkId, { onDelete: 'cascade' }),
+    articleId: integer('article_id')
+      .notNull()
+      .references(() => articles.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  },
+  (table) => [unique().on(table.userId, table.articleId)]
+)
+
+export type Bookmark = typeof bookmarks.$inferSelect
+export type NewBookmark = typeof bookmarks.$inferInsert

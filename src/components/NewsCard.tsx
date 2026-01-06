@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { CategoryBadge } from './CategoryBadge'
+import { BookmarkButton } from './BookmarkButton'
 import type { Article } from '../db/schema'
 import { formatRelativeTime } from '../lib/utils'
 
@@ -26,7 +27,12 @@ export function NewsCard({ article }: NewsCardProps) {
 
   return (
     <Link to={`/article/$id`} params={{ id: String(id) }}>
-      <article className="bg-white border border-bg-tertiary p-4 sm:p-6 rounded-sm transition-all duration-300 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl origin-center">
+      <article className="relative bg-white border border-bg-tertiary p-4 sm:p-6 rounded-sm transition-all duration-300 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl origin-center">
+        {/* Bookmark Button */}
+        <div className="absolute top-3 right-3 z-10">
+          <BookmarkButton articleId={id} size="sm" />
+        </div>
+
         {imageUrl && (
           <img
             src={imageUrl}
@@ -35,7 +41,7 @@ export function NewsCard({ article }: NewsCardProps) {
           />
         )}
 
-        <h2 className="mb-3 text-text-primary line-clamp-3 text-responsive-lg font-bold leading-tight">
+        <h2 className="mb-3 text-text-primary line-clamp-3 text-responsive-lg font-bold leading-tight pr-8">
           {title}
         </h2>
 
