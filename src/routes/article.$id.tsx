@@ -82,19 +82,19 @@ export const Route = createFileRoute('/article/$id')({
 function LoginRequired() {
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 text-center">
-      <div className="w-20 h-20 bg-gradient-to-br from-amber-50 to-orange-100 rounded-full flex items-center justify-center mb-6">
+      <div className="w-20 h-20 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-full flex items-center justify-center mb-6">
         <span className="text-4xl">🔒</span>
       </div>
-      <h2 className="text-2xl font-bold text-[#1a1a1a] mb-3">
+      <h2 className="text-2xl font-bold text-foreground mb-3">
         로그인이 필요합니다
       </h2>
-      <p className="text-gray-600 mb-8 max-w-md">
+      <p className="text-muted-foreground mb-8 max-w-md">
         기사의 상세 내용을 보려면 로그인해 주세요.
         <br />
         무료로 가입하고 모든 콘텐츠를 확인하세요!
       </p>
       <SignInButton mode="modal">
-        <button className="px-8 py-3 bg-[#1a1a1a] text-white rounded-lg font-medium hover:bg-[#333] transition-colors">
+        <button className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90">
           로그인하기
         </button>
       </SignInButton>
@@ -111,14 +111,14 @@ function ArticleDetailPage() {
 
   if (!article) {
     return (
-      <div className="bg-white min-h-screen flex flex-col">
+      <div className="bg-background min-h-screen flex flex-col">
         <ArticleNotFound />
       </div>
     )
   }
 
   return (
-    <div className="bg-white min-h-screen flex flex-col">
+    <div className="bg-background min-h-screen flex flex-col">
       {/* 로그인하지 않은 사용자 */}
       <SignedOut>
         <LoginRequired />
@@ -140,7 +140,7 @@ function ArticleDetailPage() {
                 <img
                   src={article.imageUrl}
                   alt={article.title}
-                  className="w-full aspect-video object-cover max-h-[400px] bg-gray-100 dark:bg-gray-800"
+                  className="w-full aspect-video object-cover max-h-[400px] bg-muted"
                   loading="lazy"
                   decoding="async"
                 />
@@ -148,18 +148,18 @@ function ArticleDetailPage() {
             )}
             {/* Main Description */}
             {article.description && (
-              <p className="text-text-primary text-responsive-base leading-relaxed">
+              <p className="text-foreground text-responsive-base leading-relaxed">
                 {article.description}
               </p>
             )}
             {/* Original Link */}
             {article.link && (
-              <div className="pt-4 pb-8 border-b mb-10 border-bg-tertiary flex justify-end">
+              <div className="pt-4 pb-8 border-b mb-10 border-border flex justify-end">
                 <a
                   href={article.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-link hover:underline text-responsive-sm font-medium"
+                  className="inline-flex items-center gap-2 text-primary hover:underline text-responsive-sm font-medium"
                 >
                   원문 보기 →
                 </a>
@@ -168,18 +168,18 @@ function ArticleDetailPage() {
 
             {/* So What Section */}
             {article.soWhat && (
-              <div className="mb-8 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-2xl shadow-sm border border-amber-100/50 overflow-hidden transition-all duration-300 hover:shadow-md">
+              <div className="mb-8 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-950/40 dark:via-yellow-950/40 dark:to-orange-950/40 rounded-2xl shadow-sm border border-amber-100/50 dark:border-amber-900/30 overflow-hidden hover:shadow-md">
                 {/* Header */}
                 <div className="p-6 pb-4">
                   <div className="flex items-start gap-3 mb-4">
-                    <div className="bg-amber-100 text-amber-600 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
+                    <div className="bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
                       🤔
                     </div>
-                    <h3 className="text-lg font-semibold text-text-primary pt-1.5 text-responsive-lg">
+                    <h3 className="text-lg font-semibold text-foreground pt-1.5 text-responsive-lg">
                       So What?
                     </h3>
                   </div>
-                  <p className="text-text-primary leading-relaxed text-responsive-base">
+                  <p className="text-foreground leading-relaxed text-responsive-base">
                     {article.soWhat.main_point}
                   </p>
                 </div>
@@ -187,19 +187,21 @@ function ArticleDetailPage() {
                 {/* Content */}
                 <div className="px-6 pb-6 space-y-3">
                   {/* Market Signal */}
-                  <div className="bg-white/70 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold mb-2 text-text-primary flex items-center gap-2">
-                      <span className="text-amber-600">📈</span>
+                  <div className="bg-card/50 rounded-lg p-4">
+                    <h4 className="text-sm font-semibold mb-2 text-foreground flex items-center gap-2">
+                      <span className="text-amber-600 dark:text-amber-400">
+                        📈
+                      </span>
                       시장 시그널
                     </h4>
-                    <p className="text-text-secondary leading-relaxed text-responsive-sm">
+                    <p className="text-muted-foreground leading-relaxed text-responsive-sm">
                       {article.soWhat.market_signal}
                     </p>
                   </div>
 
                   {/* Time Horizon */}
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-text-primary">
+                    <span className="text-sm font-semibold text-foreground">
                       ⏱️ 영향 기간:
                     </span>
                     <span
@@ -223,7 +225,7 @@ function ArticleDetailPage() {
             {/* Impact Analysis */}
             {article.impactAnalysis && (
               <div className="mb-8 space-y-4">
-                <h3 className="text-lg font-semibold text-text-primary">
+                <h3 className="text-lg font-semibold text-foreground">
                   영향 분석 📊
                 </h3>
 
@@ -249,18 +251,18 @@ function ArticleDetailPage() {
 
             {/* Related Context */}
             {article.relatedContext && (
-              <div className="mb-8 bg-gradient-to-br from-slate-50 to-gray-50 rounded-2xl shadow-sm border border-slate-100/50 overflow-hidden transition-all duration-300 hover:shadow-md">
+              <div className="mb-8 bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-950/40 dark:to-zinc-950/40 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-900/30 overflow-hidden hover:shadow-md">
                 {/* Header */}
                 <div className="p-6 pb-4">
                   <div className="flex items-start gap-3 mb-4">
-                    <div className="bg-slate-100 text-slate-600 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
+                    <div className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
                       📚
                     </div>
-                    <h3 className="text-lg font-semibold text-text-primary pt-1.5 text-responsive-lg">
+                    <h3 className="text-lg font-semibold text-foreground pt-1.5 text-responsive-lg">
                       배경 정보
                     </h3>
                   </div>
-                  <p className="text-text-secondary text-responsive-base leading-relaxed">
+                  <p className="text-muted-foreground text-responsive-base leading-relaxed">
                     {article.relatedContext.background}
                   </p>
                 </div>
@@ -270,7 +272,7 @@ function ArticleDetailPage() {
                   {/* Related Events */}
                   {article.relatedContext.related_events.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-semibold mb-2.5 text-text-primary flex items-center gap-2 text-responsive-sm">
+                      <h4 className="text-sm font-semibold mb-2.5 text-foreground flex items-center gap-2 text-responsive-sm">
                         연관된 최근 이슈
                       </h4>
                       <div className="flex flex-wrap gap-2">
@@ -278,7 +280,7 @@ function ArticleDetailPage() {
                           (event: string, i: number) => (
                             <span
                               key={i}
-                              className="px-3 py-1.5 bg-white text-slate-700 rounded-lg text-sm font-medium border border-slate-200/50 transition-all hover:scale-105 hover:border-slate-300"
+                              className="px-3 py-1.5 bg-card text-card-foreground rounded-lg text-sm font-medium border transition-all hover:scale-105"
                             >
                               {event}
                             </span>
@@ -290,13 +292,15 @@ function ArticleDetailPage() {
 
                   {/* What to Watch */}
                   {article.relatedContext.what_to_watch && (
-                    <div className="bg-white/70 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold mb-2 text-text-primary flex items-center gap-2">
-                        <span className="text-slate-600">👀</span>
+                    <div className="bg-card/50 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold mb-2 text-foreground flex items-center gap-2">
+                        <span className="text-slate-600 dark:text-slate-400">
+                          👀
+                        </span>
                         주목할 후속 이벤트
                       </h4>
                       <p
-                        className="text-text-secondary leading-relaxed"
+                        className="text-muted-foreground leading-relaxed"
                         style={{ fontSize: '14px' }}
                       >
                         {article.relatedContext.what_to_watch}
@@ -334,7 +338,7 @@ function ArticleDetailPage() {
                       : '😶 중립'}
               </span> */}
                 <span
-                  className="text-text-tertiary"
+                  className="text-muted-foreground"
                   style={{ fontSize: '13px' }}
                 >
                   신뢰도: {Math.round(article.sentiment.confidence * 100)}%
@@ -344,12 +348,12 @@ function ArticleDetailPage() {
 
             {/* Keywords/Tags */}
             {article.keywords && article.keywords.length > 0 && (
-              <div className="mt-8 pt-8 border-t border-bg-tertiary">
+              <div className="mt-8 pt-8 border-t border-border">
                 <div className="flex flex-wrap gap-2">
                   {article.keywords.map((keyword: string) => (
                     <span
                       key={keyword}
-                      className="px-3 py-1 bg-bg-secondary text-text-secondary rounded-full hover:bg-[#e5e5e5] transition-colors cursor-pointer"
+                      className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 cursor-pointer"
                       style={{ fontSize: '13px', fontWeight: '500' }}
                     >
                       #{keyword}

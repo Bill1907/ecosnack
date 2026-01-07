@@ -19,6 +19,7 @@ import {
 import type { Category } from '../db/schema'
 import { NewsCardSkeleton } from '@/components/NewsCardSkeleton'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
+import { Footer } from '@/components/Footer'
 
 type SearchParams = {
   category?: Category
@@ -63,7 +64,7 @@ export const Route = createFileRoute('/')({
   loader: async ({ context, deps }) => {
     await Promise.all([
       context.queryClient.prefetchInfiniteQuery(
-        articlesInfiniteQueryOptions(deps.category)
+        articlesInfiniteQueryOptions(deps.category),
       ),
       context.queryClient.ensureQueryData(categoriesQueryOptions),
     ])
@@ -88,7 +89,7 @@ function HomePage() {
   const observerRef = useInfiniteScroll(
     fetchNextPage,
     hasNextPage ?? false,
-    isFetchingNextPage
+    isFetchingNextPage,
   )
 
   const handleCategoryChange = (category: Category | 'all') => {
@@ -123,6 +124,7 @@ function HomePage() {
         {/* Intersection Observer 트리거 */}
         {hasNextPage && <div ref={observerRef} className="h-10" />}
       </div>
+      <Footer />
     </main>
   )
 }

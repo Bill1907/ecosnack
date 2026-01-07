@@ -27,7 +27,7 @@ export function NewsCard({ article }: NewsCardProps) {
 
   return (
     <Link to={`/article/$id`} params={{ id: String(id) }}>
-      <article className="relative bg-white border border-bg-tertiary p-4 sm:p-6 rounded-sm transition-all duration-300 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl origin-center">
+      <article className="relative bg-card border p-4 sm:p-6 rounded-sm cursor-pointer hover:scale-[1.02] hover:shadow-xl origin-center transition-[transform,box-shadow] duration-300 ease-in-out">
         {/* Bookmark Button */}
         <div className="absolute top-3 right-3 z-10">
           <BookmarkButton articleId={id} size="sm" />
@@ -39,19 +39,19 @@ export function NewsCard({ article }: NewsCardProps) {
             alt={title}
             loading="lazy"
             decoding="async"
-            className="w-full aspect-video object-cover mb-3 rounded-sm bg-gray-100 dark:bg-gray-800"
+            className="w-full aspect-video object-cover mb-3 rounded-sm bg-muted"
           />
         )}
 
-        <h2 className="mb-3 text-text-primary line-clamp-3 text-responsive-lg font-bold leading-tight pr-8">
+        <h2 className="mb-3 text-card-foreground line-clamp-3 text-responsive-lg font-bold leading-tight pr-8">
           {title}
         </h2>
 
-        <p className="mb-4 text-text-secondary line-clamp-2 text-responsive-sm leading-relaxed">
+        <p className="mb-4 text-muted-foreground line-clamp-2 text-responsive-sm leading-relaxed">
           {displaySummary}
         </p>
 
-        <div className="flex items-center gap-2 text-text-tertiary text-xs">
+        <div className="flex items-center gap-2 text-muted-foreground text-xs">
           <CategoryBadge category={displayCategory} />
           <span>{displaySource}</span>
           <span>·</span>

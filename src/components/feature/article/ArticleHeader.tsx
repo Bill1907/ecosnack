@@ -16,25 +16,25 @@ export function ArticleHeader({ article }: ArticleHeaderProps) {
 
         {/* Region Badge */}
         {article.region && (
-          <span className="px-3 py-1 bg-bg-secondary text-text-secondary rounded-full text-sm font-medium">
+          <span className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-xs font-medium">
             📍 {article.region}
           </span>
         )}
       </div>
 
-      <h1 className="mb-4 sm:mb-6 text-text-primary text-responsive-3xl font-bold leading-tight tracking-tight">
+      <h1 className="mb-4 sm:mb-6 text-foreground text-responsive-3xl font-bold leading-tight tracking-tight">
         {article.title}
       </h1>
 
-      <p className="mb-6 text-text-secondary text-responsive-base leading-relaxed">
+      <p className="mb-6 text-muted-foreground text-responsive-base leading-relaxed">
         {article.headlineSummary || article.description || ''}
       </p>
 
-      <div className="flex flex-wrap items-center gap-4 pb-6 border-b border-bg-tertiary">
-        <div className="flex items-center gap-2 text-text-tertiary text-sm">
+      <div className="flex flex-wrap items-center gap-4 pb-6 border-b border-border">
+        <div className="flex items-center gap-2 text-muted-foreground text-sm">
           <span>{article.source || '출처 없음'}</span>
         </div>
-        <div className="flex items-center gap-2 text-text-tertiary text-sm">
+        <div className="flex items-center gap-2 text-muted-foreground text-sm">
           <span suppressHydrationWarning>
             {formatRelativeTime(article.pubDate)}
           </span>

@@ -29,10 +29,10 @@ export function CategoryFilter({
             <button
               key={category}
               onClick={() => onCategoryChange(category)}
-              className={`px-4 py-2 rounded-full transition-colors whitespace-nowrap text-sm font-medium ${
+              className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium border ${
                 isSelected
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'
+                  ? 'bg-primary border-primary text-primary-foreground shadow-sm'
+                  : 'bg-card border-border text-muted-foreground hover:bg-secondary hover:text-foreground'
               }`}
               aria-pressed={isSelected}
               aria-label={`${categoryInfo.name} 카테고리 ${isSelected ? '선택됨' : '선택'}`}

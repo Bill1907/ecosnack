@@ -31,7 +31,7 @@ import { Navigation } from '../components/Navigation'
 import { ScrollToTopButton } from '../components/ScrollToTopButton'
 import { SITE_CONFIG, getDefaultMeta } from '../lib/seo'
 import { ClerkProvider } from '@clerk/tanstack-react-start'
-import { Footer } from '@/components/Footer'
+import { useThemeStore } from '../stores/themeStore'
 
 interface RouterContext {
   queryClient: QueryClient
@@ -82,6 +82,35 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
     scripts: [
       {
+        children: `
+          (function() {
+            try {
+              const stored = localStorage.getItem('theme-storage');
+              const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              let isDark = systemDark;
+
+              if (stored) {
+                const data = JSON.parse(stored);
+                if (data?.state?.theme) {
+                  // isUserSelected가 명시적으로 false가 아니면 저장된 테마 사용
+                  isDark = data.state.isUserSelected === false 
+                    ? systemDark 
+                    : data.state.theme === 'dark';
+                }
+              }
+
+              document.documentElement.classList.toggle('dark', isDark);
+            } catch (e) {
+              // 에러 발생 시 시스템 테마 사용
+              document.documentElement.classList.toggle(
+                'dark', 
+                window.matchMedia('(prefers-color-scheme: dark)').matches
+              );
+            }
+          })();
+        `,
+      },
+      {
         src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7913636156841478',
         async: true,
         crossOrigin: 'anonymous',
@@ -101,20 +130,28 @@ function RootLayout() {
       <div className="pt-16 sm-pt-14">
         <Outlet />
       </div>
-      <Footer />
       <ScrollToTopButton />
     </>
   )
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const theme = useThemeStore((state) => state.theme)
+
   return (
     <ClerkProvider>
-      <html lang="ko">
+      <html
+        lang="ko"
+        className={theme === 'dark' ? 'dark' : ''}
+        suppressHydrationWarning
+      >
         <head>
           <HeadContent />
         </head>
-        <body suppressHydrationWarning>
+        <body
+          className="bg-background text-foreground"
+          suppressHydrationWarning
+        >
           {children}
           {typeof window !== 'undefined' && (
             <React.Suspense fallback={null}>
@@ -141,9 +178,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 function NotFound() {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
-      <h1 className="text-4xl font-bold">404</h1>
-      <p className="text-gray-600">페이지를 찾을 수 없습니다</p>
-      <Link to="/" className="text-blue-600 hover:underline">
+      <h1 className="text-4xl font-bold text-foreground">404</h1>
+      <p className="text-muted-foreground">페이지를 찾을 수 없습니다</p>
+      <Link to="/" className="text-primary hover:underline">
         홈으로 돌아가기
       </Link>
     </div>
