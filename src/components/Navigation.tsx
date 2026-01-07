@@ -7,11 +7,13 @@ import {
 } from '@clerk/tanstack-react-start'
 import { ArrowLeft } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
+import { useThemeStore } from '@/stores/themeStore'
 
 export function Navigation() {
   const router = useRouter()
   const state = useRouterState()
   const isArticleDetail = state.location.pathname.startsWith('/article/')
+  const { theme } = useThemeStore()
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background backdrop-blur-sm">
@@ -35,7 +37,11 @@ export function Navigation() {
           {/* 로고 */}
           <Link to="/" className="flex items-center justify-center">
             <img
-              src="https://cdn.heyvona.com/logo.png"
+              src={
+                theme === 'dark'
+                  ? 'https://cdn.heyvona.com/logo_black.png'
+                  : 'https://cdn.heyvona.com/logo.png'
+              }
               alt="Logo"
               className="object-cover w-44 h-16"
               fetchPriority="high"
