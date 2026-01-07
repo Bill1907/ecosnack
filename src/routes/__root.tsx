@@ -85,33 +85,28 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         children: `
           (function() {
             try {
-              var themeStorage = localStorage.getItem('theme-storage');
-              var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-              var isDark = systemPrefersDark;
-              
-              if (themeStorage) {
-                try {
-                  var parsed = JSON.parse(themeStorage);
+              const stored = localStorage.getItem('theme-storage');
+              const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              let isDark = systemDark;
 
-                  if (parsed && parsed.state && typeof parsed.state.theme === 'string') {
-                    // isUserSelected가 명시적으로 false인 경우에만 시스템 테마 사용
-                    if (parsed.state.isUserSelected === false) {
-                      isDark = systemPrefersDark;
-                    } else {
-                      // 그 외의 경우 (true 또는 undefined) 저장된 테마 사용
-                      isDark = parsed.state.theme === 'dark';
-              
-                    }
-                  }
-                } 
+              if (stored) {
+                const data = JSON.parse(stored);
+                if (data?.state?.theme) {
+                  // isUserSelected가 명시적으로 false가 아니면 저장된 테마 사용
+                  isDark = data.state.isUserSelected === false 
+                    ? systemDark 
+                    : data.state.theme === 'dark';
+                }
               }
 
-              if (isDark) {
-                document.documentElement.classList.add('dark');
-              } else {
-                document.documentElement.classList.remove('dark');
-              }
-            } 
+              document.documentElement.classList.toggle('dark', isDark);
+            } catch (e) {
+              // 에러 발생 시 시스템 테마 사용
+              document.documentElement.classList.toggle(
+                'dark', 
+                window.matchMedia('(prefers-color-scheme: dark)').matches
+              );
+            }
           })();
         `,
       },
