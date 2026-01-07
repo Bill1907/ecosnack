@@ -60,9 +60,6 @@ export const useThemeStore = create<ThemeStore>()(
     (set, get) => {
       const initial = getInitialTheme()
 
-      // 초기 상태에서 즉시 DOM 업데이트 (클라이언트 사이드 전용)
-      updateDOM(initial.theme)
-
       // 시스템 테마 변경 감지 (클라이언트 사이드 전용)
       if (typeof window !== 'undefined') {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
@@ -73,7 +70,7 @@ export const useThemeStore = create<ThemeStore>()(
           if (!state.isUserSelected) {
             const newTheme = e.matches ? 'dark' : 'light'
             set({ theme: newTheme })
-            updateDOM(newTheme)
+            // React가 className을 관리하므로 updateDOM 불필요
           }
         }
 
@@ -85,6 +82,7 @@ export const useThemeStore = create<ThemeStore>()(
         isUserSelected: initial.isUserSelected,
         setTheme: (theme: Theme) => {
           set({ theme, isUserSelected: true }) // 사용자가 선택했음을 표시
+          // 즉각적인 업데이트를 위해 DOM도 직접 업데이트 (React re-render 전)
           updateDOM(theme)
         },
         toggleTheme: () => {
@@ -96,12 +94,7 @@ export const useThemeStore = create<ThemeStore>()(
     {
       name: 'theme-storage',
       storage: createJSONStorage(() => localStorage),
-      // 초기화 후 DOM 동기화
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          updateDOM(state.theme)
-        }
-      },
+      // React가 className을 관리하므로 onRehydrateStorage에서 DOM 업데이트 불필요
     },
   ),
 )
