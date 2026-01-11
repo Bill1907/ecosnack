@@ -28,6 +28,7 @@ const TanStackRouterDevtoolsPanel =
 
 import appCss from '../styles.css?url'
 import { Navigation } from '../components/Navigation'
+import { Sidebar } from '../components/Sidebar'
 import { ScrollToTopButton } from '../components/ScrollToTopButton'
 import { SITE_CONFIG, getDefaultMeta } from '../lib/seo'
 import { ClerkProvider } from '@clerk/tanstack-react-start'
@@ -126,10 +127,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootLayout() {
   return (
     <>
+      <Sidebar />
       <Navigation />
-      <div className="pt-16 sm-pt-14">
+      <main className="pt-16 sm-pt-14">
         <Outlet />
-      </div>
+      </main>
       <ScrollToTopButton />
     </>
   )

@@ -6,7 +6,7 @@ import {
   UserButton,
 } from '@clerk/tanstack-react-start'
 import { ArrowLeft } from 'lucide-react'
-import { ThemeToggle } from './ThemeToggle'
+import { MenuButton } from './MenuButton'
 import { useThemeStore } from '@/stores/themeStore'
 
 export function Navigation() {
@@ -20,7 +20,7 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className=" flex items-center justify-between">
           {/* 백 버튼 (디테일 페이지에서만 표시) */}
-          <div className="flex-1">
+          <div className="flex-1 flex items-center gap-2">
             {isArticleDetail && (
               <div
                 onClick={() => router.history.back()}
@@ -51,10 +51,9 @@ export function Navigation() {
             />
           </Link>
 
-          {/* 로그인/사용자 버튼 */}
+          {/* 사이드바 버튼 */}
           <div className="flex-1 flex justify-end items-center gap-3">
-            <ThemeToggle />
-            <SignedIn>
+            {/* <SignedIn>
               <UserButton
                 appearance={{
                   elements: {
@@ -69,7 +68,8 @@ export function Navigation() {
                   로그인
                 </button>
               </SignInButton>
-            </SignedOut>
+            </SignedOut> */}
+            <MenuButton />
           </div>
         </div>
       </div>

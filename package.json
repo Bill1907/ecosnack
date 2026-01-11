@@ -15,6 +15,7 @@
   "dependencies": {
     "@base-ui/react": "^1.0.0",
     "@clerk/tanstack-react-start": "^0.27.12",
+    "@clerk/themes": "^2.4.47",
     "@fontsource-variable/outfit": "^5.2.8",
     "@neondatabase/serverless": "^1.0.2",
     "@tailwindcss/vite": "^4.0.6",
