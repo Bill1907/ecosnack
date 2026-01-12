@@ -33,6 +33,7 @@
     "drizzle-orm": "^0.45.1",
     "lucide-react": "^0.562.0",
     "nitro": "latest",
+    "posthog-js": "^1.318.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "shadcn": "^3.6.2",

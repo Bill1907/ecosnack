@@ -32,7 +32,12 @@ import { Sidebar } from '../components/Sidebar'
 import { ScrollToTopButton } from '../components/ScrollToTopButton'
 import { SITE_CONFIG, getDefaultMeta } from '../lib/seo'
 import { ClerkProvider } from '@clerk/tanstack-react-start'
+import { PostHogProvider } from 'posthog-js/react'
 import { useThemeStore } from '../stores/themeStore'
+
+const posthogOptions = {
+  api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+} as const
 
 interface RouterContext {
   queryClient: QueryClient
@@ -142,37 +147,42 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
   return (
     <ClerkProvider>
-      <html
-        lang="ko"
-        className={theme === 'dark' ? 'dark' : ''}
-        suppressHydrationWarning
+      <PostHogProvider
+        apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
+        options={posthogOptions}
       >
-        <head>
-          <HeadContent />
-        </head>
-        <body
-          className="bg-background text-foreground"
+        <html
+          lang="ko"
+          className={theme === 'dark' ? 'dark' : ''}
           suppressHydrationWarning
         >
-          {children}
-          {typeof window !== 'undefined' && (
-            <React.Suspense fallback={null}>
-              <TanStackDevtools
-                config={{
-                  position: 'bottom-right',
-                }}
-                plugins={[
-                  {
-                    name: 'Tanstack Router',
-                    render: <TanStackRouterDevtoolsPanel />,
-                  },
-                ]}
-              />
-            </React.Suspense>
-          )}
-          <Scripts />
-        </body>
-      </html>
+          <head>
+            <HeadContent />
+          </head>
+          <body
+            className="bg-background text-foreground"
+            suppressHydrationWarning
+          >
+            {children}
+            {typeof window !== 'undefined' && (
+              <React.Suspense fallback={null}>
+                <TanStackDevtools
+                  config={{
+                    position: 'bottom-right',
+                  }}
+                  plugins={[
+                    {
+                      name: 'Tanstack Router',
+                      render: <TanStackRouterDevtoolsPanel />,
+                    },
+                  ]}
+                />
+              </React.Suspense>
+            )}
+            <Scripts />
+          </body>
+        </html>
+      </PostHogProvider>
     </ClerkProvider>
   )
 }
