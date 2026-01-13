@@ -1,10 +1,4 @@
 import { Link, useRouter, useRouterState } from '@tanstack/react-router'
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from '@clerk/tanstack-react-start'
 import { ArrowLeft } from 'lucide-react'
 import { MenuButton } from './MenuButton'
 import { useThemeStore } from '@/stores/themeStore'
@@ -53,22 +47,6 @@ export function Navigation() {
 
           {/* 사이드바 버튼 */}
           <div className="flex-1 flex justify-end items-center gap-3">
-            {/* <SignedIn>
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: 'w-9 h-9',
-                  },
-                }}
-              />
-            </SignedIn>
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
-                  로그인
-                </button>
-              </SignInButton>
-            </SignedOut> */}
             <MenuButton />
           </div>
         </div>
