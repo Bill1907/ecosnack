@@ -1,4 +1,8 @@
-import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query'
 import {
   toggleBookmark,
   getBookmarkStatus,
@@ -51,12 +55,22 @@ export function useToggleBookmark() {
 
       return { previousStatus }
     },
+    onSuccess: (data, articleId) => {
+      // PostHog 이벤트 트래킹
+      if (typeof window !== 'undefined' && window.posthog) {
+        const eventName = data.bookmarked ? 'bookmark_add' : 'bookmark_remove'
+        window.posthog.capture(eventName, {
+          article_id: articleId,
+          timestamp: new Date().toISOString(),
+        })
+      }
+    },
     onError: (_err, articleId, context) => {
       // 에러 시 롤백
       if (context?.previousStatus) {
         queryClient.setQueryData(
           ['bookmark', 'status', articleId],
-          context.previousStatus
+          context.previousStatus,
         )
       }
     },
