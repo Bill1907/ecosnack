@@ -51,7 +51,7 @@ function BookmarksContent() {
         timestamp: new Date().toISOString(),
       })
     }
-  }, [isLoading, bookmarks?.length])
+  }, [isLoading])
 
   if (!bookmarks || bookmarks.length === 0) {
     if (isLoading) {
