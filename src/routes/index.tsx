@@ -19,7 +19,6 @@ import {
 import type { Category } from '../db/schema'
 import { NewsCardSkeleton } from '@/components/NewsCardSkeleton'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
-import { Footer } from '@/components/Footer'
 
 type SearchParams = {
   category?: Category
