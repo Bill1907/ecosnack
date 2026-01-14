@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { SignedIn, SignedOut } from '@clerk/tanstack-react-start'
 import { useQuery } from '@tanstack/react-query'
 import { LoginRequired } from '@/components/LoginRequired'
@@ -125,12 +125,12 @@ function EmptyBookmarks() {
         <br />
         나중에 다시 읽어보세요!
       </p>
-      <a
-        href="/"
+      <Link
+        to="/"
         className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
       >
         기사 둘러보기
-      </a>
+      </Link>
     </div>
   )
 }
