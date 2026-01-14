@@ -119,7 +119,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         `,
       },
       {
-        src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7913636156841478',
+        src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1946825662622426',
         async: true,
         crossOrigin: 'anonymous',
       },
