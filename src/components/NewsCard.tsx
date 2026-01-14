@@ -1,67 +1,61 @@
 import { Link } from '@tanstack/react-router'
 import { CategoryBadge } from './CategoryBadge'
+import { BookmarkButton } from './BookmarkButton'
+import type { Article } from '../db/schema'
+import { formatRelativeTime } from '../lib/utils'
 
 interface NewsCardProps {
-  id: number
-  category: string
-  headline: string
-  summary: string
-  source: string
-  timestamp: string
-  imageUrl: string
+  article: Article
 }
 
-export function NewsCard({
-  id,
-  category,
-  headline,
-  summary,
-  source,
-  timestamp,
-  imageUrl,
-}: NewsCardProps) {
+export function NewsCard({ article }: NewsCardProps) {
+  const {
+    id,
+    category,
+    title,
+    description,
+    headlineSummary,
+    source,
+    pubDate,
+    imageUrl,
+  } = article
+
+  const displayCategory = category || '기타'
+  const displaySummary = description || headlineSummary || ''
+  const displayTimestamp = formatRelativeTime(pubDate)
+  const displaySource = source || ''
+
   return (
     <Link to={`/article/$id`} params={{ id: String(id) }}>
-      <article className="bg-white border border-[#e5e5e5] p-4 sm:p-6 rounded-sm transition-all duration-300 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl origin-center">
+      <article className="relative bg-card border p-4 sm:p-6 rounded-sm cursor-pointer hover:scale-[1.02] hover:shadow-xl origin-center transition-[transform,box-shadow] duration-300 ease-in-out">
+        {/* Bookmark Button */}
+        <div className="absolute top-3 right-3 z-10">
+          <BookmarkButton articleId={id} size="sm" />
+        </div>
+
         {imageUrl && (
           <img
             src={imageUrl}
-            alt={headline}
-            className="w-full object-cover mb-3 rounded-sm"
+            alt={title}
+            loading="lazy"
+            decoding="async"
+            className="w-full aspect-video object-cover mb-3 rounded-sm bg-muted"
           />
         )}
 
-        <h2
-          className="mb-3 text-[#1a1a1a] line-clamp-3"
-          style={{
-            fontSize: 'clamp(16px, 3vw, 20px)',
-            fontWeight: '700',
-            lineHeight: '1.4',
-          }}
-        >
-          {headline}
+        <h2 className="mb-3 text-card-foreground line-clamp-3 text-responsive-lg font-bold leading-tight pr-8">
+          {title}
         </h2>
 
-        <p
-          className="mb-4 text-[#666666] line-clamp-2"
-          style={{
-            fontSize: 'clamp(14px, 2.5vw, 15px)',
-            lineHeight: '1.6',
-          }}
-        >
-          {summary}
+        <p className="mb-4 text-muted-foreground line-clamp-2 text-responsive-sm leading-relaxed">
+          {displaySummary}
         </p>
 
-        <div
-          className="flex items-center gap-2 text-[#999999]"
-          style={{
-            fontSize: '12px',
-          }}
-        >
-          <CategoryBadge category={category} />
-          <span>{source}</span>
+        <div className="flex items-center gap-2 text-muted-foreground text-xs">
+          <CategoryBadge category={displayCategory} />
+          <span>{displaySource}</span>
           <span>·</span>
-          <span>{timestamp}</span>
+          <span suppressHydrationWarning>{displayTimestamp}</span>
         </div>
       </article>
     </Link>

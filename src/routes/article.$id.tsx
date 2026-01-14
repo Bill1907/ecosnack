@@ -1,18 +1,21 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { CategoryBadge } from '../components/CategoryBadge'
-import { ShareButtons } from '../components/feature/article/ShareButtons'
-import { Footer } from '../components/Footer'
+import { createFileRoute } from '@tanstack/react-router'
+import { SignedIn, SignedOut, SignInButton } from '@clerk/tanstack-react-start'
+import { ArticleHeader } from '../components/feature/article/ArticleHeader'
 import { ImpactItem } from '../components/feature/article/ImpactItem'
+import { LoginRequired } from '../components/LoginRequired'
 import { getArticleById } from '../lib/articles.api'
-import { formatRelativeTime } from '../lib/utils'
 import {
-  getPageMeta,
+  CATEGORY_NAMES,
+  SITE_CONFIG,
   getArticleJsonLd,
   getBreadcrumbJsonLd,
+  getPageMeta,
   truncateDescription,
-  SITE_CONFIG,
-  CATEGORY_NAMES,
 } from '../lib/seo'
+import { TIME_HORIZON_CONFIG } from '@/lib/const'
+import ArticleNotFound from '@/components/feature/article/ArticleNotFound'
+import { Footer } from '@/components/Footer'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute('/article/$id')({
   loader: async ({ params }) => {
@@ -20,17 +23,15 @@ export const Route = createFileRoute('/article/$id')({
     return { article }
   },
   head: ({ loaderData }) => {
-    if (!loaderData?.article) {
-      return {
-        meta: getPageMeta({
-          title: '기사를 찾을 수 없습니다 - ' + SITE_CONFIG.title,
-          description: '요청하신 기사가 존재하지 않습니다.',
-          path: '/article',
-        }),
-      }
+    if (!loaderData) {
+      return {}
     }
 
     const { article } = loaderData
+    if (!article) {
+      return {}
+    }
+
     const categoryName = article.category
       ? CATEGORY_NAMES[article.category]
       : '경제'
@@ -79,112 +80,30 @@ export const Route = createFileRoute('/article/$id')({
   component: ArticleDetailPage,
 })
 
-function ArticleNotFound() {
-  return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 text-center">
-      <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-        <span className="text-4xl">🤔</span>
-      </div>
-      <h2 className="text-2xl font-bold text-[#1a1a1a] mb-3">
-        기사를 찾을 수 없습니다
-      </h2>
-      <p className="text-gray-600 mb-8 max-w-md">
-        요청하신 기사가 삭제되었거나 존재하지 않는 주소입니다.
-        <br />
-        다른 기사를 찾아보시는 건 어떨까요?
-      </p>
-      <Link
-        to="/"
-        className="px-6 py-3 bg-[#1a1a1a] text-white rounded-lg font-medium hover:bg-[#1a1a1a] transition-colors"
-      >
-        홈으로 돌아가기
-      </Link>
-    </div>
-  )
-}
-
 function ArticleDetailPage() {
   const { article } = Route.useLoaderData()
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   if (!article) {
     return (
-      <div className="bg-white min-h-screen flex flex-col">
+      <div className="bg-background min-h-screen flex flex-col">
         <ArticleNotFound />
-        <Footer />
       </div>
     )
   }
 
   return (
-    <div className="bg-white min-h-screen flex flex-col">
+    <div className="bg-background min-h-screen flex flex-col">
+      {/* 로그인하지 않은 사용자 */}
+
+      {/* 로그인한 사용자만 기사 내용 표시 */}
       {/* Article Content */}
       <article className="max-w-[680px] mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-12 flex-1">
         {/* Article Header */}
-        <header className="mb-6 sm:mb-8">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <CategoryBadge category={article.category || ''} />
-
-            {/* Region Badge */}
-            {article.region && (
-              <span className="px-3 py-1 bg-[#f5f5f5] text-[#666666] rounded-full text-sm font-medium">
-                📍 {article.region}
-              </span>
-            )}
-          </div>
-
-          <h1
-            className="mb-4 sm:mb-6 text-[#1a1a1a]"
-            style={{
-              fontSize: 'clamp(28px, 5vw, 40px)',
-              fontWeight: '700',
-              lineHeight: '1.2',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            {article.title}
-          </h1>
-
-          <p
-            className="mb-6 text-[#666666]"
-            style={{
-              fontSize: 'clamp(16px, 3vw, 18px)',
-              lineHeight: '1.6',
-            }}
-          >
-            {article.headlineSummary || article.description || ''}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-4 pb-6 border-b border-[#e5e5e5]">
-            <div
-              className="flex items-center gap-2 text-[#999999]"
-              style={{ fontSize: '14px' }}
-            >
-              <span>{article.source || '출처 없음'}</span>
-            </div>
-            <div
-              className="flex items-center gap-2 text-[#999999]"
-              style={{ fontSize: '14px' }}
-            >
-              {/* <Clock className="w-4 h-4" />
-              <span>{calculateReadTime(article)} 분량</span>
-              <span>·</span> */}
-              <span>{formatRelativeTime(article.pubDate)}</span>
-              {article.importanceScore && (
-                <>
-                  <span>·</span>
-                  <span className="flex items-center gap-1">
-                    {'⭐'.repeat(
-                      Math.min(Math.ceil(article.importanceScore / 2), 5),
-                    )}
-                  </span>
-                </>
-              )}
-            </div>
-            <div className="ml-auto">
-              <ShareButtons />
-            </div>
-          </div>
-        </header>
+        <ArticleHeader article={article} />
 
         {/* Article Body */}
         <div className="article-content">
@@ -194,32 +113,26 @@ function ArticleDetailPage() {
               <img
                 src={article.imageUrl}
                 alt={article.title}
-                className="w-full h-auto object-cover"
-                style={{ maxHeight: '400px' }}
+                className="w-full aspect-video object-cover max-h-[400px] bg-muted"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           )}
           {/* Main Description */}
           {article.description && (
-            <p
-              className="text-[#1a1a1a]"
-              style={{
-                fontSize: 'clamp(16px, 2.5vw, 18px)',
-                lineHeight: '1.8',
-              }}
-            >
+            <p className="text-foreground text-responsive-base leading-relaxed">
               {article.description}
             </p>
           )}
           {/* Original Link */}
           {article.link && (
-            <div className="pt-4 pb-8 border-b mb-10 border-[#e5e5e5] flex justify-end">
+            <div className="pt-4 pb-8 border-b mb-10 border-border flex justify-end">
               <a
                 href={article.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-[#0066cc] hover:underline"
-                style={{ fontSize: '15px', fontWeight: '500' }}
+                className="inline-flex items-center gap-2 text-primary hover:underline text-responsive-sm font-medium"
               >
                 원문 보기 →
               </a>
@@ -228,21 +141,18 @@ function ArticleDetailPage() {
 
           {/* So What Section */}
           {article.soWhat && (
-            <div className="mb-8 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-2xl shadow-sm border border-amber-100/50 overflow-hidden transition-all duration-300 hover:shadow-md">
+            <div className="mb-8 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-950/40 dark:via-yellow-950/40 dark:to-orange-950/40 rounded-2xl shadow-sm border border-amber-100/50 dark:border-amber-900/30 overflow-hidden hover:shadow-md">
               {/* Header */}
               <div className="p-6 pb-4">
                 <div className="flex items-start gap-3 mb-4">
-                  <div className="bg-amber-100 text-amber-600 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
+                  <div className="bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
                     🤔
                   </div>
-                  <h3 className="text-lg font-semibold text-[#1a1a1a] pt-1.5">
+                  <h3 className="text-lg font-semibold text-foreground pt-1.5 text-responsive-lg">
                     So What?
                   </h3>
                 </div>
-                <p
-                  className="text-[#1a1a1a] leading-relaxed"
-                  style={{ fontSize: '16px', lineHeight: '1.7' }}
-                >
+                <p className="text-foreground leading-relaxed text-responsive-base">
                   {article.soWhat.main_point}
                 </p>
               </div>
@@ -250,106 +160,133 @@ function ArticleDetailPage() {
               {/* Content */}
               <div className="px-6 pb-6 space-y-3">
                 {/* Market Signal */}
-                <div className="bg-white/70 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold mb-2 text-[#1a1a1a] flex items-center gap-2">
-                    <span className="text-amber-600">📈</span>
+                <div className="bg-card/50 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold mb-2 text-foreground flex items-center gap-2">
+                    <span className="text-amber-600 dark:text-amber-400">
+                      📈
+                    </span>
                     시장 시그널
                   </h4>
-                  <p
-                    className="text-[#666666] leading-relaxed"
-                    style={{ fontSize: '15px' }}
-                  >
+                  <p className="text-muted-foreground leading-relaxed text-responsive-sm">
                     {article.soWhat.market_signal}
                   </p>
                 </div>
 
                 {/* Time Horizon */}
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-[#1a1a1a]">
+                  <span className="text-sm font-semibold text-foreground">
                     ⏱️ 영향 기간:
                   </span>
                   <span
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all hover:scale-105 ${
-                      article.soWhat.time_horizon === 'short'
-                        ? 'bg-blue-100 text-blue-700'
-                        : article.soWhat.time_horizon === 'medium'
-                          ? 'bg-purple-100 text-purple-700'
-                          : 'bg-green-100 text-green-700'
+                      TIME_HORIZON_CONFIG[
+                        article.soWhat
+                          .time_horizon as keyof typeof TIME_HORIZON_CONFIG
+                      ]?.className ?? TIME_HORIZON_CONFIG.long.className
                     }`}
                   >
-                    {article.soWhat.time_horizon === 'short'
-                      ? '단기 (1주)'
-                      : article.soWhat.time_horizon === 'medium'
-                        ? '중기 (1-3개월)'
-                        : '장기 (1년+)'}
+                    {TIME_HORIZON_CONFIG[
+                      article.soWhat
+                        .time_horizon as keyof typeof TIME_HORIZON_CONFIG
+                    ]?.label ?? TIME_HORIZON_CONFIG.long.label}
                   </span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Impact Analysis */}
-          {article.impactAnalysis && (
-            <div className="mb-8 space-y-4">
-              <h3 className="text-lg font-semibold text-[#1a1a1a]">
-                영향 분석 📊
-              </h3>
+          {/* 로그인하지 않은 사용자 */}
+          {/* Impact Analysis - SignedOut: Blurred Placeholder */}
+          <SignedOut>
+            <div className="relative mb-8">
+              {/* Blurred placeholder content */}
+              <div className="blur-md select-none pointer-events-none space-y-4">
+                <div className="h-8 w-40 bg-muted rounded" />
+                <div className="space-y-3">
+                  <div className="h-32 bg-muted/50 rounded-lg" />
+                  <div className="h-32 bg-muted/50 rounded-lg" />
+                  <div className="h-32 bg-muted/50 rounded-lg" />
+                </div>
+                <div className="h-48 bg-muted/50 rounded-2xl" />
+                <div className="h-24 bg-muted/50 rounded-lg" />
+              </div>
 
-              {/* Investors Impact */}
-              {article.impactAnalysis.investors && (
+              {/* Overlay with login prompt */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/60 to-background/95 flex items-center justify-center">
+                <div className="text-center p-6 max-w-md">
+                  <div className="w-16 h-16 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-full flex items-center justify-center mb-4 mx-auto">
+                    <span className="text-3xl">🔐</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground mb-2">
+                    더 많은 분석 내용
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    영향 분석, 배경 정보 등 심층 콘텐츠는
+                    <br />
+                    로그인 후 확인하실 수 있습니다
+                  </p>
+                  <SignInButton mode="modal">
+                    <button className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                      로그인
+                    </button>
+                  </SignInButton>
+                </div>
+              </div>
+            </div>
+          </SignedOut>
+
+          {/* Impact Analysis - SignedIn: Real Content */}
+          <SignedIn>
+            {article.impactAnalysis && (
+              <div className="mb-8 space-y-4">
+                <h3 className="text-lg font-semibold text-foreground">
+                  영향 분석 📊
+                </h3>
+
+                {/* Investors Impact */}
                 <ImpactItem
                   type="investors"
                   data={article.impactAnalysis.investors}
                 />
-              )}
 
-              {/* Workers Impact */}
-              {article.impactAnalysis.workers && (
+                {/* Workers Impact */}
                 <ImpactItem
                   type="workers"
                   data={article.impactAnalysis.workers}
                 />
-              )}
 
-              {/* Consumers Impact */}
-              {article.impactAnalysis.consumers && (
+                {/* Consumers Impact */}
                 <ImpactItem
                   type="consumers"
                   data={article.impactAnalysis.consumers}
                 />
-              )}
-            </div>
-          )}
-
-          {/* Related Context */}
-          {article.relatedContext && (
-            <div className="mb-8 bg-gradient-to-br from-slate-50 to-gray-50 rounded-2xl shadow-sm border border-slate-100/50 overflow-hidden transition-all duration-300 hover:shadow-md">
-              {/* Header */}
-              <div className="p-6 pb-4">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="bg-slate-100 text-slate-600 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
-                    📚
-                  </div>
-                  <h3 className="text-lg font-semibold text-[#1a1a1a] pt-1.5">
-                    배경 정보
-                  </h3>
-                </div>
-                <p
-                  className="text-[#666666] leading-relaxed"
-                  style={{ fontSize: '15px', lineHeight: '1.7' }}
-                >
-                  {article.relatedContext.background}
-                </p>
               </div>
+            )}
 
-              {/* Content */}
-              <div className="px-6 pb-6 space-y-4">
-                {/* Related Events */}
-                {article.relatedContext.related_events &&
-                  article.relatedContext.related_events.length > 0 && (
+            {/* Related Context */}
+            {article.relatedContext && (
+              <div className="mb-8 bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-950/40 dark:to-zinc-950/40 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-900/30 overflow-hidden hover:shadow-md">
+                {/* Header */}
+                <div className="p-6 pb-4">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
+                      📚
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground pt-1.5 text-responsive-lg">
+                      배경 정보
+                    </h3>
+                  </div>
+                  <p className="text-muted-foreground text-responsive-base leading-relaxed">
+                    {article.relatedContext.background}
+                  </p>
+                </div>
+
+                {/* Content */}
+                <div className="px-6 pb-6 space-y-4">
+                  {/* Related Events */}
+                  {article.relatedContext.related_events.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-semibold mb-2.5 text-[#1a1a1a] flex items-center gap-2">
-                        {/* <span className="text-slate-600">🔗</span> */}
+                      <h4 className="text-sm font-semibold mb-2.5 text-foreground flex items-center gap-2 text-responsive-sm">
                         연관된 최근 이슈
                       </h4>
                       <div className="flex flex-wrap gap-2">
@@ -357,7 +294,7 @@ function ArticleDetailPage() {
                           (event: string, i: number) => (
                             <span
                               key={i}
-                              className="px-3 py-1.5 bg-white text-slate-700 rounded-lg text-sm font-medium border border-slate-200/50 transition-all hover:scale-105 hover:border-slate-300"
+                              className="px-3 py-1.5 bg-card text-card-foreground rounded-lg text-sm font-medium border transition-all hover:scale-105"
                             >
                               {event}
                             </span>
@@ -367,29 +304,31 @@ function ArticleDetailPage() {
                     </div>
                   )}
 
-                {/* What to Watch */}
-                {article.relatedContext.what_to_watch && (
-                  <div className="bg-white/70 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold mb-2 text-[#1a1a1a] flex items-center gap-2">
-                      <span className="text-slate-600">👀</span>
-                      주목할 후속 이벤트
-                    </h4>
-                    <p
-                      className="text-[#666666] leading-relaxed"
-                      style={{ fontSize: '14px' }}
-                    >
-                      {article.relatedContext.what_to_watch}
-                    </p>
-                  </div>
-                )}
+                  {/* What to Watch */}
+                  {article.relatedContext.what_to_watch && (
+                    <div className="bg-card/50 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold mb-2 text-foreground flex items-center gap-2">
+                        <span className="text-slate-600 dark:text-slate-400">
+                          👀
+                        </span>
+                        주목할 후속 이벤트
+                      </h4>
+                      <p
+                        className="text-muted-foreground leading-relaxed"
+                        style={{ fontSize: '14px' }}
+                      >
+                        {article.relatedContext.what_to_watch}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Sentiment */}
-          {article.sentiment && (
-            <div className="mb-6 flex items-center gap-3">
-              {/* <span className="text-[#999999]" style={{ fontSize: '14px' }}>
+            {/* Sentiment */}
+            {article.sentiment && (
+              <div className="mb-6 flex items-center gap-3">
+                {/* <span className="text-text-tertiary" style={{ fontSize: '14px' }}>
                 감정 분석:
               </span>
               <span
@@ -412,32 +351,34 @@ function ArticleDetailPage() {
                       ? '😐 복합적'
                       : '😶 중립'}
               </span> */}
-              <span className="text-[#999999]" style={{ fontSize: '13px' }}>
-                신뢰도: {Math.round(article.sentiment.confidence * 100)}%
-              </span>
-            </div>
-          )}
-
-          {/* Keywords/Tags */}
-          {article.keywords && article.keywords.length > 0 && (
-            <div className="mt-8 pt-8 border-t border-[#e5e5e5]">
-              <div className="flex flex-wrap gap-2">
-                {article.keywords.map((keyword: string) => (
-                  <span
-                    key={keyword}
-                    className="px-3 py-1 bg-[#f5f5f5] text-[#666666] rounded-full hover:bg-[#e5e5e5] transition-colors cursor-pointer"
-                    style={{ fontSize: '13px', fontWeight: '500' }}
-                  >
-                    #{keyword}
-                  </span>
-                ))}
+                <span
+                  className="text-muted-foreground"
+                  style={{ fontSize: '13px' }}
+                >
+                  신뢰도: {Math.round(article.sentiment.confidence * 100)}%
+                </span>
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Keywords/Tags */}
+            {article.keywords && article.keywords.length > 0 && (
+              <div className="mt-8 pt-8 border-t border-border">
+                <div className="flex flex-wrap gap-2">
+                  {article.keywords.map((keyword: string) => (
+                    <span
+                      key={keyword}
+                      className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 cursor-pointer"
+                      style={{ fontSize: '13px', fontWeight: '500' }}
+                    >
+                      #{keyword}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </SignedIn>
         </div>
       </article>
-
-      <Footer />
     </div>
   )
 }

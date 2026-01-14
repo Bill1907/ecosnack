@@ -22,11 +22,11 @@ export function ShareButtons() {
     <div className="flex items-center gap-3">
       <button
         onClick={handleShare}
-        className="flex items-center gap-2 px-2 py-2 md:px-4 md:border md:border-[#e5e5e5] rounded hover:bg-[#f5f5f5] transition-colors"
+        className="flex items-center gap-2 px-2 py-2 md:px-4 md:border md:border-border rounded hover:bg-secondary"
         style={{ fontSize: '14px', fontWeight: '500' }}
         aria-label="공유하기"
       >
-        <Share2 className="w-4 h-4" color="#999999" />
+        <Share2 className="w-4 h-4 text-muted-foreground" />
         <span className="hidden md:inline">공유하기</span>
       </button>
     </div>

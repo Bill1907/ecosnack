@@ -1,40 +1,44 @@
+import {
+  useSuspenseInfiniteQuery,
+  useSuspenseQuery,
+} from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
-import { NewsCard } from '../components/NewsCard'
 import { CategoryFilter } from '../components/CategoryFilter'
-import { Footer } from '../components/Footer'
-import {
-  getArticles,
-  getCategories,
-  getArticlesByCategory,
-} from '../lib/articles.api'
-import type { Article, Category } from '../db/schema'
+import { NewsCard } from '../components/NewsCard'
 import { CategorySchema } from '../db/schema'
-import { formatRelativeTime } from '@/lib/utils'
 import {
+  articlesInfiniteQueryOptions,
+  categoriesQueryOptions,
+} from '../lib/articles.queries'
+import {
+  SITE_CONFIG,
+  getOrganizationJsonLd,
   getPageMeta,
   getWebsiteJsonLd,
-  getOrganizationJsonLd,
-  SITE_CONFIG,
 } from '../lib/seo'
+import type { Category } from '../db/schema'
 import { NewsCardSkeleton } from '@/components/NewsCardSkeleton'
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
+import { Footer } from '@/components/Footer'
 
-// 검색 파라미터 타입 정의
 type SearchParams = {
   category?: Category
 }
 
 export const Route = createFileRoute('/')({
   component: HomePage,
-  // 검색 파라미터 유효성 검사
   validateSearch: (search: Record<string, unknown>): SearchParams => {
     const validCategories = CategorySchema.options
-    const category = search.category as string | undefined
-    return {
-      category: validCategories.includes(category as Category)
-        ? (category as Category)
-        : undefined,
+    const category = search.category
+
+    if (
+      typeof category === 'string' &&
+      validCategories.includes(category as Category)
+    ) {
+      return { category: category as Category }
     }
+
+    return { category: undefined }
   },
   head: () => {
     return {
@@ -56,100 +60,70 @@ export const Route = createFileRoute('/')({
       ],
     }
   },
-  loader: async () => {
-    const [articles, categories] = await Promise.all([
-      getArticles(),
-      getCategories(),
+  loaderDeps: ({ search }) => ({ category: search.category }),
+  loader: async ({ context, deps }) => {
+    await Promise.all([
+      context.queryClient.prefetchInfiniteQuery(
+        articlesInfiniteQueryOptions(deps.category),
+      ),
+      context.queryClient.ensureQueryData(categoriesQueryOptions),
     ])
-    return { articles, categories }
   },
 })
 
 function HomePage() {
-  const { articles: initialArticles, categories } = Route.useLoaderData()
   const navigate = useNavigate({ from: '/' })
   const { category: urlCategory } = Route.useSearch()
+  const selectedCategory = urlCategory || 'all'
 
-  const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>(
-    urlCategory || 'all',
+  // React Query 사용
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useSuspenseInfiniteQuery(articlesInfiniteQueryOptions(urlCategory))
+
+  const { data: categories } = useSuspenseQuery(categoriesQueryOptions)
+
+  // 모든 페이지의 articles 평탄화
+  const articles = data.pages.flatMap((page) => page.articles)
+
+  // 기존 훅 재사용
+  const observerRef = useInfiniteScroll(
+    fetchNextPage,
+    hasNextPage ?? false,
+    isFetchingNextPage,
   )
-  const [articles, setArticles] = useState<Article[]>(initialArticles)
-  const [isLoading, setIsLoading] = useState(false)
 
-  // URL 파라미터가 변경되면 selectedCategory 업데이트
-  useEffect(() => {
-    setSelectedCategory(urlCategory || 'all')
-  }, [urlCategory])
-
-  useEffect(() => {
-    const fetchArticles = async () => {
-      setIsLoading(true)
-      try {
-        if (selectedCategory === 'all') {
-          const allArticles = await getArticles()
-          setArticles(allArticles)
-        } else {
-          const categoryArticles = await getArticlesByCategory({
-            data: selectedCategory,
-          })
-          setArticles(categoryArticles)
-        }
-      } catch (error) {
-        console.error('Failed to fetch articles:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchArticles()
-  }, [selectedCategory])
-
-  // 카테고리 변경 핸들러 - URL 파라미터 업데이트
   const handleCategoryChange = (category: Category | 'all') => {
     navigate({
-      search: {
-        category: category === 'all' ? undefined : category,
-      },
+      search: { category: category === 'all' ? undefined : category },
     })
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Main Content */}
-      <main className="flex-1">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
-          {/* Category Filter */}
-          <CategoryFilter
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategoryChange={handleCategoryChange}
-          />
+    <main className="flex-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 lg:py-12">
+        {/* Category Filter */}
+        <CategoryFilter
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onCategoryChange={handleCategoryChange}
+        />
 
-          {/* News Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            {isLoading
-              ? Array.from({ length: 6 }).map((_, index) => (
-                  <NewsCardSkeleton key={`skeleton-${index}`} />
-                ))
-              : articles.map((article) => (
-                  <NewsCard
-                    key={article.id}
-                    id={article.id}
-                    category={article.category || '기타'}
-                    headline={article.title}
-                    summary={
-                      article.description || article.headlineSummary || ''
-                    }
-                    source={article.source || ''}
-                    timestamp={formatRelativeTime(article.pubDate)}
-                    imageUrl={article.imageUrl || ''}
-                  />
-                ))}
-          </div>
+        {/* News Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          {articles.map((article) => (
+            <NewsCard key={article.id} article={article} />
+          ))}
+
+          {/* 추가 로딩 스켈레톤 */}
+          {isFetchingNextPage &&
+            Array.from({ length: 3 }).map((_, index) => (
+              <NewsCardSkeleton key={`loading-more-${index}`} />
+            ))}
         </div>
-      </main>
 
-      <Footer />
-    </div>
+        {/* Intersection Observer 트리거 */}
+        {hasNextPage && <div ref={observerRef} className="h-10" />}
+      </div>
+    </main>
   )
 }
