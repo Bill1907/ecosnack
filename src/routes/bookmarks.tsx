@@ -1,14 +1,21 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { SignedIn, SignedOut } from '@clerk/tanstack-react-start'
 import { useQuery } from '@tanstack/react-query'
-import { LoginRequired } from '@/components/LoginRequired'
+import { useAuth } from '@clerk/tanstack-react-start'
 import { NewsCard } from '@/components/NewsCard'
 import { NewsCardSkeleton } from '@/components/NewsCardSkeleton'
 import { userBookmarksQueryOptions } from '@/lib/bookmarks.queries'
 import { getPageMeta } from '@/lib/seo'
+import { getAuthStatus } from '@/lib/auth.middleware'
+import { LoginRequired } from '@/components/LoginRequired'
 import { useEffect } from 'react'
+import EmptyBookmarks from '@/components/feature/bookmarks/EmptyBookmarks'
 
 export const Route = createFileRoute('/bookmarks')({
+  // SSR 시점에 인증 상태 확인 (리다이렉트 없음)
+  beforeLoad: async () => {
+    const { isAuthenticated } = await getAuthStatus()
+    return { isAuthenticated }
+  },
   head: () => ({
     meta: getPageMeta({
       title: '북마크',
@@ -20,22 +27,32 @@ export const Route = createFileRoute('/bookmarks')({
 })
 
 function BookmarksPage() {
-  return (
-    <div className="bg-background min-h-screen">
-      {/* 비로그인 사용자 */}
-      <SignedOut>
+  const { isAuthenticated: ssrIsAuthenticated } = Route.useRouteContext()
+  const { isSignedIn } = useAuth() // 클라이언트 사이드 인증 체크
+
+  // SSR: ssrIsAuthenticated 사용
+  // 클라이언트: isSignedIn 사용
+  const isAuthenticated =
+    typeof window === 'undefined' ? ssrIsAuthenticated : isSignedIn
+
+  // 비로그인 사용자에게 LoginRequired 표시
+  if (!isAuthenticated) {
+    return (
+      <div className="bg-background min-h-screen">
         <LoginRequired
           title="북마크를 확인하려면 로그인하세요"
           description="저장한 기사를 모아보고 싶으신가요?&#10;로그인하고 관심있는 기사를 북마크하세요!"
           icon="📚"
           buttonText="로그인하고 북마크 시작하기"
         />
-      </SignedOut>
+      </div>
+    )
+  }
 
-      {/* 로그인 사용자 */}
-      <SignedIn>
-        <BookmarksContent />
-      </SignedIn>
+  // 로그인된 사용자에게 북마크 목록 표시
+  return (
+    <div className="bg-background min-h-screen">
+      <BookmarksContent />
     </div>
   )
 }
@@ -107,30 +124,6 @@ function BookmarksContent() {
           <NewsCard key={article.id} article={article} />
         ))}
       </div>
-    </div>
-  )
-}
-
-function EmptyBookmarks() {
-  return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 text-center">
-      <div className="w-24 h-24 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-full flex items-center justify-center mb-6">
-        <span className="text-5xl">📖</span>
-      </div>
-      <h2 className="text-2xl font-bold text-foreground mb-3">
-        아직 북마크한 기사가 없습니다
-      </h2>
-      <p className="text-muted-foreground mb-8 max-w-md">
-        관심있는 기사를 북마크하고
-        <br />
-        나중에 다시 읽어보세요!
-      </p>
-      <Link
-        to="/"
-        className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
-      >
-        기사 둘러보기
-      </Link>
     </div>
   )
 }

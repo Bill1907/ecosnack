@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as ArticleIdRouteImport } from './routes/article.$id'
 import { Route as ApiWebhooksClerkRouteImport } from './routes/api.webhooks.clerk'
 
@@ -23,11 +22,6 @@ const BookmarksRoute = BookmarksRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CategorySlugRoute = CategorySlugRouteImport.update({
-  id: '/category/$slug',
-  path: '/category/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArticleIdRoute = ArticleIdRouteImport.update({
@@ -45,14 +39,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bookmarks': typeof BookmarksRoute
   '/article/$id': typeof ArticleIdRoute
-  '/category/$slug': typeof CategorySlugRoute
   '/api/webhooks/clerk': typeof ApiWebhooksClerkRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bookmarks': typeof BookmarksRoute
   '/article/$id': typeof ArticleIdRoute
-  '/category/$slug': typeof CategorySlugRoute
   '/api/webhooks/clerk': typeof ApiWebhooksClerkRoute
 }
 export interface FileRoutesById {
@@ -60,38 +52,20 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/bookmarks': typeof BookmarksRoute
   '/article/$id': typeof ArticleIdRoute
-  '/category/$slug': typeof CategorySlugRoute
   '/api/webhooks/clerk': typeof ApiWebhooksClerkRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/bookmarks'
-    | '/article/$id'
-    | '/category/$slug'
-    | '/api/webhooks/clerk'
+  fullPaths: '/' | '/bookmarks' | '/article/$id' | '/api/webhooks/clerk'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/bookmarks'
-    | '/article/$id'
-    | '/category/$slug'
-    | '/api/webhooks/clerk'
-  id:
-    | '__root__'
-    | '/'
-    | '/bookmarks'
-    | '/article/$id'
-    | '/category/$slug'
-    | '/api/webhooks/clerk'
+  to: '/' | '/bookmarks' | '/article/$id' | '/api/webhooks/clerk'
+  id: '__root__' | '/' | '/bookmarks' | '/article/$id' | '/api/webhooks/clerk'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BookmarksRoute: typeof BookmarksRoute
   ArticleIdRoute: typeof ArticleIdRoute
-  CategorySlugRoute: typeof CategorySlugRoute
   ApiWebhooksClerkRoute: typeof ApiWebhooksClerkRoute
 }
 
@@ -109,13 +83,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/category/$slug': {
-      id: '/category/$slug'
-      path: '/category/$slug'
-      fullPath: '/category/$slug'
-      preLoaderRoute: typeof CategorySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/article/$id': {
@@ -139,7 +106,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BookmarksRoute: BookmarksRoute,
   ArticleIdRoute: ArticleIdRoute,
-  CategorySlugRoute: CategorySlugRoute,
   ApiWebhooksClerkRoute: ApiWebhooksClerkRoute,
 }
 export const routeTree = rootRouteImport
