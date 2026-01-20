@@ -93,7 +93,7 @@ export function Footer() {
             className="text-muted-foreground text-center"
             style={{ fontSize: '13px' }}
           >
-            © 2025 Hey! Vona. All rights reserved.
+            © {new Date().getFullYear()} Hey! Vona. All rights reserved.
           </p>
         </div>
       </div>
