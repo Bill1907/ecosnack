@@ -22,7 +22,6 @@ export const Route = createFileRoute('/api/webhooks/clerk')({
         const webhookSecret = process.env.CLERK_WEBHOOK_SECRET
 
         if (!webhookSecret) {
-          console.error('CLERK_WEBHOOK_SECRET is not set')
           return new Response('Webhook secret not configured', { status: 500 })
         }
 
@@ -49,7 +48,6 @@ export const Route = createFileRoute('/api/webhooks/clerk')({
             'svix-signature': svixSignature,
           }) as ClerkWebhookEvent
         } catch (err) {
-          console.error('Webhook verification failed:', err)
           return new Response('Invalid signature', { status: 400 })
         }
 
@@ -84,20 +82,16 @@ export const Route = createFileRoute('/api/webhooks/clerk')({
                   },
                 })
 
-              console.log(
-                `User ${type === 'user.created' ? 'created' : 'updated'}: ${data.id}`,
-              )
               break
             }
 
             case 'user.deleted': {
               await db.delete(users).where(eq(users.clerkId, data.id))
-              console.log(`User deleted: ${data.id}`)
               break
             }
 
             default:
-              console.log(`Unhandled webhook event: ${type}`)
+              break
           }
 
           return new Response(JSON.stringify({ success: true }), {
@@ -105,7 +99,6 @@ export const Route = createFileRoute('/api/webhooks/clerk')({
             headers: { 'Content-Type': 'application/json' },
           })
         } catch (error) {
-          console.error('Webhook handler error:', error)
           return new Response('Internal server error', { status: 500 })
         }
       },

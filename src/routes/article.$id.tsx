@@ -1,5 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, ErrorComponentProps } from '@tanstack/react-router'
 import { useAuth } from '@clerk/tanstack-react-start'
+import { usePostHog } from 'posthog-js/react'
 import { ArticleHeader } from '../components/feature/article/ArticleHeader'
 import { ImpactItem } from '../components/feature/article/ImpactItem'
 import { getArticleById } from '../lib/articles.api'
@@ -25,6 +26,11 @@ export const Route = createFileRoute('/article/$id')({
   },
   loader: async ({ params }) => {
     const article = await getArticleById({ data: Number(params.id) })
+    
+    if (!article) {
+      throw new Error('존재하지 않는 기사입니다')
+    }
+    
     return { article }
   },
   head: ({ loaderData }) => {
@@ -82,8 +88,30 @@ export const Route = createFileRoute('/article/$id')({
       ],
     }
   },
+  errorComponent: ArticleErrorComponent,
   component: ArticleDetailPage,
 })
+
+function ArticleErrorComponent({ error }: ErrorComponentProps) {
+  const posthog = usePostHog()
+  const isDevelopment = process.env.NODE_ENV === 'development'
+
+  useEffect(() => {
+    // 프로덕션 환경에서만 PostHog에 에러 로깅
+    if (!isDevelopment && posthog) {
+      posthog.capture('article_not_found', {
+        error_message: error.message,
+        timestamp: new Date().toISOString(),
+      })
+    }
+  }, [error, posthog, isDevelopment])
+
+  return (
+    <div className="bg-background min-h-screen flex flex-col">
+      <ArticleNotFound />
+    </div>
+  )
+}
 
 function ArticleDetailPage() {
   const { article } = Route.useLoaderData()
@@ -98,13 +126,7 @@ function ArticleDetailPage() {
     window.scrollTo(0, 0)
   }, [])
 
-  if (!article) {
-    return (
-      <div className="bg-background min-h-screen flex flex-col">
-        <ArticleNotFound />
-      </div>
-    )
-  }
+
 
   return (
     <div className="bg-background min-h-screen flex flex-col">

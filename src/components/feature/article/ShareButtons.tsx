@@ -8,11 +8,10 @@ export function ShareButtons() {
           title: document.title,
           url: window.location.href,
         })
-      } catch (err) {
-        console.log('Error sharing', err)
+      } catch {
+        // 공유 실패시 아무 동작 안함
       }
     } else {
-      // Fallback for browsers that don't support Web Share API
       navigator.clipboard.writeText(window.location.href)
       alert('링크가 복사되었습니다!')
     }

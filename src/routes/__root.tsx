@@ -1,12 +1,11 @@
 import type { QueryClient } from '@tanstack/react-query'
 import {
   HeadContent,
-  Link,
   Outlet,
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 const TanStackDevtools =
   process.env.NODE_ENV === 'production'
@@ -36,6 +35,8 @@ import { PostHogProvider } from 'posthog-js/react'
 import { useThemeStore } from '../stores/themeStore'
 import { Footer } from '@/components/Footer'
 import { usePostHogIdentify } from '@/hooks/usePostHogIdentify'
+import { ErrorComponent } from '@/components/ErrorComponent'
+import { NotFound } from '@/components/NotFound'
 
 const posthogOptions = {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
@@ -129,6 +130,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   shellComponent: RootDocument,
   component: RootLayout,
   notFoundComponent: NotFound,
+  errorComponent: ErrorComponent,
 })
 
 function RootLayout() {
@@ -171,7 +173,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           >
             {children}
             {typeof window !== 'undefined' && (
-              <React.Suspense fallback={null}>
+              <Suspense fallback={null}>
                 <TanStackDevtools
                   config={{
                     position: 'bottom-right',
@@ -183,24 +185,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                     },
                   ]}
                 />
-              </React.Suspense>
+              </Suspense>
             )}
             <Scripts />
           </body>
         </html>
       </PostHogProvider>
     </ClerkProvider>
-  )
-}
-
-function NotFound() {
-  return (
-    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
-      <h1 className="text-4xl font-bold text-foreground">404</h1>
-      <p className="text-muted-foreground">페이지를 찾을 수 없습니다</p>
-      <Link to="/" className="text-primary hover:underline">
-        홈으로 돌아가기
-      </Link>
-    </div>
   )
 }
