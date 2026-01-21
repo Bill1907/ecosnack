@@ -94,23 +94,32 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/bookmarks'
+    | '/contact'
+    | '/privacy'
+    | '/terms'
     | '/article/$id'
-    | '/category/$slug'
     | '/api/webhooks/clerk'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/bookmarks'
+    | '/contact'
+    | '/privacy'
+    | '/terms'
     | '/article/$id'
-    | '/category/$slug'
     | '/api/webhooks/clerk'
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/bookmarks'
+    | '/contact'
+    | '/privacy'
+    | '/terms'
     | '/article/$id'
-    | '/category/$slug'
     | '/api/webhooks/clerk'
   fileRoutesById: FileRoutesById
 }
