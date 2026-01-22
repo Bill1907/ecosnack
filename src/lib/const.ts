@@ -1,4 +1,4 @@
-import { Category } from '@/db/schema'
+import { Category, Region } from '@/db/schema'
 
 // 카테고리 정보 매핑
 export const CATEGORY_INFO: Record<
@@ -12,6 +12,16 @@ export const CATEGORY_INFO: Record<
   markets: { name: '시장', variant: 'markets' },
   policy: { name: '정책', variant: 'policy' },
   trade: { name: '무역', variant: 'trade' },
+}
+
+// 지역 정보 매핑
+export const REGION_INFO: Record<
+  Region | 'all',
+  { name: string; emoji: string }
+> = {
+  all: { name: '전체', emoji: '🌏' },
+  KR: { name: '국내', emoji: '🇰🇷' },
+  US: { name: '해외', emoji: '🇺🇸' },
 }
 
 export const TIME_HORIZON_CONFIG = {

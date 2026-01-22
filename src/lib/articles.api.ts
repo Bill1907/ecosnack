@@ -54,6 +54,8 @@ const PaginationInputSchema = z.object({
     })
     .optional(),
   category: z.string().optional(),
+  query: z.string().optional(), // 검색어 (제목, 설명, 키워드)
+  region: z.enum(['KR', 'US']).optional(), // 지역 필터
 })
 
 // 페이지네이션 기사 조회 (무한 스크롤용)
@@ -61,7 +63,7 @@ export const getArticlesPaginated = createServerFn()
   .inputValidator(zodValidator(PaginationInputSchema))
   .handler(async ({ data }) => {
     const db = getDb()
-    const { limit, cursor, category } = data
+    const { limit, cursor, category, query, region } = data
 
     // 조건 배열
     const conditions = []
@@ -69,6 +71,22 @@ export const getArticlesPaginated = createServerFn()
     // 카테고리 필터
     if (category) {
       conditions.push(eq(articles.category, category))
+    }
+
+    // 검색어 필터 (제목, 설명, 키워드 검색)
+    if (query) {
+      conditions.push(
+        or(
+          sql`${articles.title} ILIKE ${`%${query}%`}`,
+          sql`${articles.description} ILIKE ${`%${query}%`}`,
+          sql`${query} = ANY(${articles.keywords})`
+        )
+      )
+    }
+
+    // 지역 필터
+    if (region) {
+      conditions.push(eq(articles.region, region))
     }
 
     // 커서 기반 페이지네이션 조건

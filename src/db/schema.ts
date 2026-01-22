@@ -73,6 +73,11 @@ export const CategorySchema = z
   .enum(['economy', 'finance', 'business', 'markets', 'policy', 'trade'])
   .describe('뉴스 카테고리')
 
+// 지역
+export const RegionSchema = z
+  .enum(['KR', 'US'])
+  .describe('뉴스 지역 (KR: 국내, US: 해외)')
+
 // ============================================
 // 전체 분석 결과 스키마
 // ============================================
@@ -102,6 +107,7 @@ export type ImpactAnalysis = z.infer<typeof ImpactAnalysisSchema>
 export type RelatedContext = z.infer<typeof RelatedContextSchema>
 export type Sentiment = z.infer<typeof SentimentSchema>
 export type Category = z.infer<typeof CategorySchema>
+export type Region = z.infer<typeof RegionSchema>
 export type NewsAnalysisResult = z.infer<typeof NewsAnalysisResultSchema>
 
 // Articles 테이블 스키마

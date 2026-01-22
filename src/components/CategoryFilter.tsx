@@ -12,14 +12,14 @@ export function CategoryFilter({
   selectedCategory,
   onCategoryChange,
 }: CategoryFilterProps) {
-  // API에서 받은 카테고리 목록에 'all' 추가
+
   const categories: Array<Category | 'all'> = [
     'all',
     ...apiCategories,
   ] as Array<Category | 'all'>
 
   return (
-    <div className="mb-2 sm:mb-4 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex sm:justify-center overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] scroll-smooth">
+    <div className="mb-2 sm:mb-4 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex sm:justify-center overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] scroll-smooth mr-2">
       <div className="flex gap-2 sm:gap-3 min-w-max sm:min-w-0 sm:flex-wrap cursor-pointer">
         {categories.map((category) => {
           const isSelected = selectedCategory === category
@@ -29,7 +29,7 @@ export function CategoryFilter({
             <button
               key={category}
               onClick={() => onCategoryChange(category)}
-              className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium border ${
+              className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium border cursor-pointer ${
                 isSelected
                   ? 'bg-primary border-primary text-primary-foreground shadow-sm'
                   : 'bg-card border-border text-muted-foreground hover:bg-secondary hover:text-foreground'

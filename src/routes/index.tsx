@@ -4,8 +4,9 @@ import {
 } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { CategoryFilter } from '../components/CategoryFilter'
+import { SearchFilters } from '../components/SearchFilters'
 import { NewsCard } from '../components/NewsCard'
-import { CategorySchema } from '../db/schema'
+import { CategorySchema, RegionSchema } from '../db/schema'
 import {
   articlesInfiniteQueryOptions,
   categoriesQueryOptions,
@@ -16,29 +17,38 @@ import {
   getPageMeta,
   getWebsiteJsonLd,
 } from '../lib/seo'
-import type { Category } from '../db/schema'
+import type { Category, Region } from '../db/schema'
 import { NewsCardSkeleton } from '@/components/NewsCardSkeleton'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
 import { DailyReports } from '@/components/feature/main/DailyReports'
 
 type SearchParams = {
   category?: Category
+  query?: string
+  region?: Region
 }
 
 export const Route = createFileRoute('/')({
   component: HomePage,
   validateSearch: (search: Record<string, unknown>): SearchParams => {
     const validCategories = CategorySchema.options
+    const validRegions = RegionSchema.options
     const category = search.category
+    const query = search.query
+    const region = search.region
 
-    if (
-      typeof category === 'string' &&
-      validCategories.includes(category as Category)
-    ) {
-      return { category: category as Category }
+    return {
+      category:
+        typeof category === 'string' &&
+        validCategories.includes(category as Category)
+          ? (category as Category)
+          : undefined,
+      query: typeof query === 'string' && query.trim() ? query : undefined,
+      region:
+        typeof region === 'string' && validRegions.includes(region as Region)
+          ? (region as Region)
+          : undefined,
     }
-
-    return { category: undefined }
   },
   head: () => {
     return {
@@ -60,11 +70,19 @@ export const Route = createFileRoute('/')({
       ],
     }
   },
-  loaderDeps: ({ search }) => ({ category: search.category }),
+  loaderDeps: ({ search }) => ({
+    category: search.category,
+    query: search.query,
+    region: search.region,
+  }),
   loader: async ({ context, deps }) => {
     await Promise.all([
       context.queryClient.prefetchInfiniteQuery(
-        articlesInfiniteQueryOptions(deps.category),
+        articlesInfiniteQueryOptions({
+          category: deps.category,
+          query: deps.query,
+          region: deps.region,
+        }),
       ),
       context.queryClient.ensureQueryData(categoriesQueryOptions),
     ])
@@ -73,12 +91,24 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   const navigate = useNavigate({ from: '/' })
-  const { category: urlCategory } = Route.useSearch()
+  const {
+    category: urlCategory,
+    query: urlQuery,
+    region: urlRegion,
+  } = Route.useSearch()
   const selectedCategory = urlCategory || 'all'
+  const selectedRegion = urlRegion || 'all'
+  const searchQuery = urlQuery || ''
 
   // React Query 사용
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useSuspenseInfiniteQuery(articlesInfiniteQueryOptions(urlCategory))
+    useSuspenseInfiniteQuery(
+      articlesInfiniteQueryOptions({
+        category: urlCategory,
+        query: urlQuery,
+        region: urlRegion,
+      }),
+    )
 
   const { data: categories } = useSuspenseQuery(categoriesQueryOptions)
 
@@ -94,7 +124,28 @@ function HomePage() {
 
   const handleCategoryChange = (category: Category | 'all') => {
     navigate({
-      search: { category: category === 'all' ? undefined : category },
+      search: (prev) => ({
+        ...prev,
+        category: category === 'all' ? undefined : category,
+      }),
+    })
+  }
+
+  const handleSearchChange = (query: string) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        query: query.trim() || undefined,
+      }),
+    })
+  }
+
+  const handleRegionChange = (region: Region | 'all') => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        region: region === 'all' ? undefined : region,
+      }),
     })
   }
 
@@ -102,6 +153,14 @@ function HomePage() {
     <main className="flex-1">
       <DailyReports />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 lg:py-12">
+        {/* Search & Region Filters */}
+        <SearchFilters
+          searchQuery={searchQuery}
+          selectedRegion={selectedRegion}
+          onSearchChange={handleSearchChange}
+          onRegionChange={handleRegionChange}
+        />
+
         {/* Category Filter */}
         <CategoryFilter
           categories={categories}

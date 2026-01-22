@@ -1,21 +1,31 @@
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query'
 import { getArticlesPaginated, getCategories } from './articles.api'
-import type { Category } from '@/db/schema'
+import type { Category, Region } from '@/db/schema'
 
 type Cursor = {
   pubDate: string | null
   id: number
 } | null
 
-export const articlesInfiniteQueryOptions = (category?: Category) =>
+type ArticlesFilterOptions = {
+  category?: Category
+  query?: string
+  region?: Region
+}
+
+export const articlesInfiniteQueryOptions = (
+  filters?: ArticlesFilterOptions,
+) =>
   infiniteQueryOptions({
-    queryKey: ['articles', 'infinite', { category }] as const,
+    queryKey: ['articles', 'infinite', filters] as const,
     queryFn: async ({ pageParam }) => {
       return getArticlesPaginated({
         data: {
           limit: 12,
           cursor: pageParam ?? undefined,
-          category,
+          category: filters?.category,
+          query: filters?.query,
+          region: filters?.region,
         },
       })
     },
