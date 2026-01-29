@@ -43,7 +43,6 @@ export function SearchFilters({
 
   return (
     <div className="space-y-2 mb-2">
-      {/* Search Card - Toss Style */}
       <div className="bg-card rounded-2xl shadow-md border border-border/50 overflow-hidden">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -59,7 +58,6 @@ export function SearchFilters({
         </div>
       </div>
 
-      {/* Region Filter Card - Toss Style */}
       <div className="bg-card rounded-2xl shadow-md border border-border/50 p-2">
         <div className="flex gap-1.5">
           {regions.map((region) => {

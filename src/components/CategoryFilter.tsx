@@ -19,7 +19,6 @@ export function CategoryFilter({
 
   return (
     <div className="mb-4">
-      {/* Category Filter Card - Toss Style */}
       <div className="bg-card rounded-2xl shadow-md border border-border/50 p-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex gap-1.5 min-w-max sm:min-w-0 sm:flex-wrap">
           {categories.map((category) => {
