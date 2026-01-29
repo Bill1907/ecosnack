@@ -15,6 +15,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DailyReportDateRouteImport } from './routes/daily-report.$date'
 import { Route as ArticleIdRouteImport } from './routes/article.$id'
 import { Route as ApiWebhooksClerkRouteImport } from './routes/api.webhooks.clerk'
 
@@ -48,6 +49,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DailyReportDateRoute = DailyReportDateRouteImport.update({
+  id: '/daily-report/$date',
+  path: '/daily-report/$date',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArticleIdRoute = ArticleIdRouteImport.update({
   id: '/article/$id',
   path: '/article/$id',
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/article/$id': typeof ArticleIdRoute
+  '/daily-report/$date': typeof DailyReportDateRoute
   '/api/webhooks/clerk': typeof ApiWebhooksClerkRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/article/$id': typeof ArticleIdRoute
+  '/daily-report/$date': typeof DailyReportDateRoute
   '/api/webhooks/clerk': typeof ApiWebhooksClerkRoute
 }
 export interface FileRoutesById {
@@ -88,29 +96,42 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/article/$id': typeof ArticleIdRoute
+  '/daily-report/$date': typeof DailyReportDateRoute
   '/api/webhooks/clerk': typeof ApiWebhooksClerkRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/bookmarks'
+    | '/contact'
+    | '/privacy'
+    | '/terms'
     | '/article/$id'
-    | '/category/$slug'
+    | '/daily-report/$date'
     | '/api/webhooks/clerk'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/bookmarks'
+    | '/contact'
+    | '/privacy'
+    | '/terms'
     | '/article/$id'
-    | '/category/$slug'
+    | '/daily-report/$date'
     | '/api/webhooks/clerk'
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/bookmarks'
+    | '/contact'
+    | '/privacy'
+    | '/terms'
     | '/article/$id'
-    | '/category/$slug'
+    | '/daily-report/$date'
     | '/api/webhooks/clerk'
   fileRoutesById: FileRoutesById
 }
@@ -122,6 +143,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   ArticleIdRoute: typeof ArticleIdRoute
+  DailyReportDateRoute: typeof DailyReportDateRoute
   ApiWebhooksClerkRoute: typeof ApiWebhooksClerkRoute
 }
 
@@ -169,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/daily-report/$date': {
+      id: '/daily-report/$date'
+      path: '/daily-report/$date'
+      fullPath: '/daily-report/$date'
+      preLoaderRoute: typeof DailyReportDateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/article/$id': {
       id: '/article/$id'
       path: '/article/$id'
@@ -194,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   ArticleIdRoute: ArticleIdRoute,
+  DailyReportDateRoute: DailyReportDateRoute,
   ApiWebhooksClerkRoute: ApiWebhooksClerkRoute,
 }
 export const routeTree = rootRouteImport
