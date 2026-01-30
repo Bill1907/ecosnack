@@ -6,7 +6,9 @@ import { useThemeStore } from '@/stores/themeStore'
 export function Navigation() {
   const router = useRouter()
   const state = useRouterState()
-  const isArticleDetail = state.location.pathname.startsWith('/article/')
+  const isArticleDetail =
+    state.location.pathname.startsWith('/article/') ||
+    state.location.pathname.startsWith('/daily-report/')
   const { theme } = useThemeStore()
 
   return (

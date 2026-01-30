@@ -1,6 +1,6 @@
 import { HTTPError, defineEventHandler } from 'h3'
-import { getArticles } from '../../../src/lib/articles.api'
-import { generateSitemap } from '../../../src/lib/sitemap'
+import { getArticles } from '../../src/lib/articles.api'
+import { generateSitemap } from '../../src/lib/sitemap'
 
 export default defineEventHandler(async () => {
   try {

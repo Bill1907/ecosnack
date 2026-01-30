@@ -6,7 +6,6 @@ import {
   varchar,
   jsonb,
   integer,
-  unique,
 } from 'drizzle-orm/pg-core'
 import { z } from 'zod'
 
@@ -73,6 +72,11 @@ export const CategorySchema = z
   .enum(['economy', 'finance', 'business', 'markets', 'policy', 'trade'])
   .describe('뉴스 카테고리')
 
+// 지역
+export const RegionSchema = z
+  .enum(['KR', 'US'])
+  .describe('뉴스 지역 (KR: 국내, US: 해외)')
+
 // ============================================
 // 전체 분석 결과 스키마
 // ============================================
@@ -102,9 +106,13 @@ export type ImpactAnalysis = z.infer<typeof ImpactAnalysisSchema>
 export type RelatedContext = z.infer<typeof RelatedContextSchema>
 export type Sentiment = z.infer<typeof SentimentSchema>
 export type Category = z.infer<typeof CategorySchema>
+export type Region = z.infer<typeof RegionSchema>
 export type NewsAnalysisResult = z.infer<typeof NewsAnalysisResultSchema>
 
+// ============================================
 // Articles 테이블 스키마
+// ============================================
+
 export const articles = pgTable('articles', {
   id: serial('id').primaryKey(),
 
@@ -136,50 +144,3 @@ export const articles = pgTable('articles', {
 // 타입 추론
 export type Article = typeof articles.$inferSelect
 export type NewArticle = typeof articles.$inferInsert
-
-// 카테고리 통계 Materialized View
-export const categoryStats = pgTable('category_stats', {
-  category: varchar('category', { length: 50 }).primaryKey(),
-  articleCount: integer('article_count').notNull(),
-  latestArticle: timestamp('latest_article', { withTimezone: true }),
-})
-
-export type CategoryStat = typeof categoryStats.$inferSelect
-
-// ============================================
-// Users 테이블 (Clerk 사용자 동기화)
-// ============================================
-
-export const users = pgTable('users', {
-  clerkId: varchar('clerk_id', { length: 255 }).primaryKey(),
-  email: varchar('email', { length: 255 }),
-  name: varchar('name', { length: 255 }),
-  imageUrl: text('image_url'),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
-})
-
-export type User = typeof users.$inferSelect
-export type NewUser = typeof users.$inferInsert
-
-// ============================================
-// Bookmarks 테이블 (사용자-기사 북마크)
-// ============================================
-
-export const bookmarks = pgTable(
-  'bookmarks',
-  {
-    id: serial('id').primaryKey(),
-    userId: varchar('user_id', { length: 255 })
-      .notNull()
-      .references(() => users.clerkId, { onDelete: 'cascade' }),
-    articleId: integer('article_id')
-      .notNull()
-      .references(() => articles.id, { onDelete: 'cascade' }),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  },
-  (table) => [unique().on(table.userId, table.articleId)]
-)
-
-export type Bookmark = typeof bookmarks.$inferSelect
-export type NewBookmark = typeof bookmarks.$inferInsert
