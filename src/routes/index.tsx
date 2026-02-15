@@ -21,6 +21,7 @@ import type { Category, Region } from '../db/schema'
 import { NewsCardSkeleton } from '@/components/NewsCardSkeleton'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
 import { DailyReports } from '@/components/feature/main/DailyReports'
+import { HeroSection } from '@/components/feature/main/HeroSection'
 
 type SearchParams = {
   category?: Category
@@ -151,6 +152,7 @@ function HomePage() {
 
   return (
     <main className="flex-1">
+      <HeroSection />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 lg:py-12">
         {/* Search & Region Filters */}
         <SearchFilters
