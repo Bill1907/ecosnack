@@ -123,8 +123,7 @@ export function Sidebar() {
                 나의 리포트
               </h3>
               <Link
-                to="/my-report/$date"
-                params={{ date: new Date().toISOString().split('T')[0] }}
+                to="/my-report"
                 onClick={closeSidebar}
                 className={`
                   flex items-center gap-3 px-4 py-2 rounded-full transition-colors text-sm font-medium
