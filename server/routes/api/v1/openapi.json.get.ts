@@ -1,16 +1,18 @@
 import { defineEventHandler, setResponseHeaders } from 'h3'
 
+const APP_URL = process.env.APP_URL || 'https://ecosnack.onrender.com'
+
 const OPENAPI_SPEC = {
   openapi: '3.1.0',
   info: {
     title: 'Ecosnack API',
     description:
-      'ecosnack(에코스낵)은 경제 뉴스 분석 플랫폼입니다. 매일 주요 경제 뉴스를 AI가 분석하여 투자자, 직장인, 소비자 관점의 인사이트를 제공합니다. 데일리 리포트, 기사 검색, 개인화 리포트, 북마크 기능을 지원합니다.',
+      'ecosnack(에코스낵)은 AI 경제 뉴스 분석 플랫폼입니다. 매일 한국/미국 주요 경제 뉴스를 AI가 분석하여 투자자, 직장인, 소비자 관점의 인사이트를 제공합니다. 개인화 리포트와 북마크 기능은 ecosnack 웹사이트(https://ecosnack.onrender.com)에서 가입 후 이용할 수 있습니다.',
     version: '1.0.0',
   },
   servers: [
     {
-      url: 'https://ecosnack.onrender.com',
+      url: APP_URL,
       description: 'Production server',
     },
   ],
@@ -20,7 +22,7 @@ const OPENAPI_SPEC = {
         operationId: 'getLatestReport',
         summary: '최신 데일리 경제 리포트 조회',
         description:
-          '오늘(또는 가장 최근)의 데일리 경제 리포트를 조회합니다. 주요 뉴스 요약, 시장 전망, 핵심 인사이트, 감성 분석 결과를 포함합니다.',
+          '오늘(또는 가장 최근)의 데일리 경제 리포트를 조회합니다. 주요 뉴스 요약(headline, overview), 시장 전망(outlook, watchList), 핵심 인사이트(투자자/직장인/소비자 영향), 감성 분석 결과를 포함합니다.',
         responses: {
           '200': {
             description: '최신 리포트',
@@ -30,6 +32,7 @@ const OPENAPI_SPEC = {
               },
             },
           },
+          '404': { description: '리포트 없음' },
         },
       },
     },
@@ -50,13 +53,15 @@ const OPENAPI_SPEC = {
         ],
         responses: {
           '200': {
-            description: '해당 날짜의 리포트',
+            description: '해당 날짜의 리포트와 연관 기사',
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/ReportWithArticlesResponse' },
               },
             },
           },
+          '400': { description: '잘못된 날짜 형식' },
+          '404': { description: '해당 날짜 리포트 없음' },
         },
       },
     },
@@ -65,7 +70,7 @@ const OPENAPI_SPEC = {
         operationId: 'searchArticles',
         summary: '경제 뉴스 기사 검색 및 목록 조회',
         description:
-          '경제 뉴스 기사를 검색합니다. 키워드, 카테고리(economy, finance, business, markets, policy, trade), 지역(KR/US)으로 필터링할 수 있습니다.',
+          '경제 뉴스 기사를 검색합니다. 키워드(q), 카테고리, 지역으로 필터링할 수 있으며 커서 기반 페이지네이션을 지원합니다.',
         parameters: [
           {
             name: 'q',
@@ -122,9 +127,9 @@ const OPENAPI_SPEC = {
     '/api/v1/articles/{id}': {
       get: {
         operationId: 'getArticleById',
-        summary: '기사 상세 조회',
+        summary: '기사 상세 조회 (AI 분석 포함)',
         description:
-          '특정 기사의 전체 AI 분석 결과를 조회합니다. So What 분석, 투자자/직장인/소비자 영향 분석, 관련 컨텍스트가 포함됩니다.',
+          '특정 기사의 전체 AI 분석 결과를 조회합니다. So What 분석(핵심 포인트, 시장 신호), 투자자/직장인/소비자별 영향 분석, 관련 컨텍스트가 포함됩니다.',
         parameters: [
           {
             name: 'id',
@@ -136,13 +141,15 @@ const OPENAPI_SPEC = {
         ],
         responses: {
           '200': {
-            description: '기사 상세 정보',
+            description: '기사 상세 정보 (AI 분석 포함)',
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/ArticleDetailResponse' },
               },
             },
           },
+          '400': { description: '잘못된 기사 ID' },
+          '404': { description: '기사 없음' },
         },
       },
     },
@@ -163,160 +170,8 @@ const OPENAPI_SPEC = {
         },
       },
     },
-    '/api/v1/bookmarks': {
-      get: {
-        operationId: 'getBookmarks',
-        summary: '내 북마크 목록 조회',
-        description: '로그인한 사용자의 북마크된 기사 목록을 조회합니다. 인증이 필요합니다.',
-        security: [{ oauth2: [] }],
-        responses: {
-          '200': {
-            description: '북마크 목록',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/BookmarksResponse' },
-              },
-            },
-          },
-          '401': { description: '인증 필요' },
-        },
-      },
-    },
-    '/api/v1/bookmarks/toggle': {
-      post: {
-        operationId: 'toggleBookmark',
-        summary: '기사 북마크 추가/제거',
-        description: '기사를 북마크에 추가하거나 이미 있으면 제거합니다. 인증이 필요합니다.',
-        security: [{ oauth2: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                required: ['articleId'],
-                properties: {
-                  articleId: {
-                    type: 'integer',
-                    description: '북마크할 기사 ID',
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          '200': {
-            description: '북마크 상태',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    success: { type: 'boolean' },
-                    data: {
-                      type: 'object',
-                      properties: {
-                        bookmarked: { type: 'boolean' },
-                        articleId: { type: 'integer' },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          '401': { description: '인증 필요' },
-        },
-      },
-    },
-    '/api/v1/me/report/latest': {
-      get: {
-        operationId: 'getMyLatestReport',
-        summary: '내 최신 개인화 리포트 조회',
-        description:
-          '사용자의 관심사와 북마크 패턴을 기반으로 생성된 개인화 경제 리포트를 조회합니다. 인증이 필요합니다.',
-        security: [{ oauth2: [] }],
-        responses: {
-          '200': {
-            description: '개인화 리포트',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/PersonalizedReportResponse' },
-              },
-            },
-          },
-          '401': { description: '인증 필요' },
-        },
-      },
-    },
-    '/api/v1/me/report/{date}': {
-      get: {
-        operationId: 'getMyReportByDate',
-        summary: '특정 날짜의 개인화 리포트 조회',
-        description: '특정 날짜의 개인화 경제 리포트를 조회합니다. 인증이 필요합니다.',
-        security: [{ oauth2: [] }],
-        parameters: [
-          {
-            name: 'date',
-            in: 'path',
-            required: true,
-            description: '조회할 날짜 (YYYY-MM-DD 형식)',
-            schema: { type: 'string', format: 'date' },
-          },
-        ],
-        responses: {
-          '200': {
-            description: '개인화 리포트',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/PersonalizedReportResponse' },
-              },
-            },
-          },
-          '401': { description: '인증 필요' },
-        },
-      },
-    },
-    '/api/v1/me/preferences': {
-      get: {
-        operationId: 'getMyPreferences',
-        summary: '내 선호도 정보 조회',
-        description:
-          '사용자의 뉴스 선호도 분석 결과를 조회합니다. 선호 카테고리, 키워드, 매체 정보를 포함합니다. 인증이 필요합니다.',
-        security: [{ oauth2: [] }],
-        responses: {
-          '200': {
-            description: '선호도 정보',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/PreferencesResponse' },
-              },
-            },
-          },
-          '401': { description: '인증 필요' },
-        },
-      },
-    },
   },
   components: {
-    securitySchemes: {
-      oauth2: {
-        type: 'oauth2',
-        flows: {
-          authorizationCode: {
-            authorizationUrl: 'https://YOUR_CLERK_DOMAIN/oauth/authorize',
-            tokenUrl: 'https://YOUR_CLERK_DOMAIN/oauth/token',
-            scopes: {
-              'read:profile': '사용자 프로필 읽기',
-              'read:bookmarks': '북마크 조회',
-              'write:bookmarks': '북마크 추가/삭제',
-              'read:reports': '개인화 리포트 조회',
-            },
-          },
-        },
-      },
-    },
     schemas: {
       SentimentAnalysis: {
         type: 'object',
@@ -331,8 +186,8 @@ const OPENAPI_SPEC = {
       ExecutiveSummary: {
         type: 'object',
         properties: {
-          headline: { type: 'string' },
-          overview: { type: 'string' },
+          headline: { type: 'string', description: '한줄 헤드라인' },
+          overview: { type: 'string', description: '전체 요약' },
           highlights: {
             type: 'array',
             items: {
@@ -340,6 +195,14 @@ const OPENAPI_SPEC = {
               properties: {
                 title: { type: 'string' },
                 description: { type: 'string' },
+                relatedArticle: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer' },
+                    title: { type: 'string' },
+                    importance: { type: 'integer' },
+                  },
+                },
               },
             },
           },
@@ -356,9 +219,23 @@ const OPENAPI_SPEC = {
         type: 'object',
         properties: {
           summary: { type: 'string' },
-          sections: { type: 'array', items: { type: 'object' } },
-          outlook: { type: 'string' },
-          watchList: { type: 'array', items: { type: 'string' } },
+          sections: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                title: { type: 'string' },
+                content: { type: 'string' },
+                keyData: { type: 'array', items: { type: 'string' } },
+              },
+            },
+          },
+          outlook: { type: 'string', description: '시장 전망' },
+          watchList: {
+            type: 'array',
+            items: { type: 'string' },
+            description: '주목할 이슈',
+          },
         },
       },
       KeyInsight: {
@@ -370,9 +247,19 @@ const OPENAPI_SPEC = {
           implications: {
             type: 'object',
             properties: {
-              investors: { type: 'string' },
-              workers: { type: 'string' },
-              consumers: { type: 'string' },
+              investors: { type: 'string', description: '투자자 관점' },
+              workers: { type: 'string', description: '직장인 관점' },
+              consumers: { type: 'string', description: '소비자 관점' },
+            },
+          },
+          evidence: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                text: { type: 'string' },
+                source: { type: 'string' },
+              },
             },
           },
           actionItems: { type: 'array', items: { type: 'string' } },
@@ -428,6 +315,15 @@ const OPENAPI_SPEC = {
                 items: { $ref: '#/components/schemas/KeyInsight' },
               },
               topKeywords: { type: 'array', items: { type: 'string' } },
+              sentimentAnalysis: {
+                type: 'object',
+                properties: {
+                  overall: { type: 'string' },
+                  positiveCount: { type: 'integer' },
+                  negativeCount: { type: 'integer' },
+                  neutralCount: { type: 'integer' },
+                },
+              },
               articleCount: { type: 'integer' },
               articles: {
                 type: 'array',
@@ -438,6 +334,7 @@ const OPENAPI_SPEC = {
                     title: { type: 'string' },
                     headlineSummary: { type: 'string' },
                     category: { type: 'string' },
+                    sentiment: { $ref: '#/components/schemas/SentimentAnalysis' },
                     pubDate: { type: 'string' },
                     source: { type: 'string' },
                   },
@@ -461,14 +358,16 @@ const OPENAPI_SPEC = {
                   properties: {
                     id: { type: 'integer' },
                     title: { type: 'string' },
+                    link: { type: 'string', description: '원문 URL' },
                     description: { type: 'string' },
+                    imageUrl: { type: 'string', nullable: true },
                     headlineSummary: { type: 'string' },
                     category: { type: 'string' },
                     sentiment: { $ref: '#/components/schemas/SentimentAnalysis' },
                     importanceScore: { type: 'integer' },
                     pubDate: { type: 'string' },
                     source: { type: 'string' },
-                    region: { type: 'string' },
+                    region: { type: 'string', enum: ['KR', 'US'] },
                     keywords: { type: 'array', items: { type: 'string' } },
                   },
                 },
@@ -476,6 +375,7 @@ const OPENAPI_SPEC = {
               nextCursor: {
                 type: 'object',
                 nullable: true,
+                description: '다음 페이지 요청 시 cursor_id, cursor_date 파라미터로 전달',
                 properties: {
                   id: { type: 'integer' },
                   pubDate: { type: 'string', nullable: true },
@@ -495,8 +395,9 @@ const OPENAPI_SPEC = {
             properties: {
               id: { type: 'integer' },
               title: { type: 'string' },
-              link: { type: 'string' },
+              link: { type: 'string', description: '원문 URL' },
               description: { type: 'string' },
+              imageUrl: { type: 'string', nullable: true },
               headlineSummary: { type: 'string' },
               pubDate: { type: 'string' },
               source: { type: 'string' },
@@ -507,6 +408,7 @@ const OPENAPI_SPEC = {
               keywords: { type: 'array', items: { type: 'string' } },
               soWhat: {
                 type: 'object',
+                description: '핵심 포인트 분석',
                 properties: {
                   main_point: { type: 'string' },
                   market_signal: { type: 'string' },
@@ -515,6 +417,7 @@ const OPENAPI_SPEC = {
               },
               impactAnalysis: {
                 type: 'object',
+                description: '이해관계자별 영향 분석',
                 properties: {
                   investors: {
                     type: 'object',
@@ -544,6 +447,7 @@ const OPENAPI_SPEC = {
               },
               relatedContext: {
                 type: 'object',
+                description: '관련 배경 및 전망',
                 properties: {
                   background: { type: 'string' },
                   related_events: { type: 'array', items: { type: 'string' } },
@@ -572,87 +476,6 @@ const OPENAPI_SPEC = {
                   },
                 },
               },
-            },
-          },
-        },
-      },
-      BookmarksResponse: {
-        type: 'object',
-        properties: {
-          success: { type: 'boolean' },
-          data: {
-            type: 'object',
-            properties: {
-              bookmarks: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'integer' },
-                    title: { type: 'string' },
-                    headlineSummary: { type: 'string' },
-                    category: { type: 'string' },
-                    pubDate: { type: 'string' },
-                    source: { type: 'string' },
-                    bookmarkedAt: { type: 'string' },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      PersonalizedReportResponse: {
-        type: 'object',
-        properties: {
-          success: { type: 'boolean' },
-          data: {
-            type: 'object',
-            properties: {
-              id: { type: 'integer' },
-              reportDate: { type: 'string' },
-              title: { type: 'string' },
-              executiveSummary: { $ref: '#/components/schemas/ExecutiveSummary' },
-              marketOverview: { $ref: '#/components/schemas/MarketOverview' },
-              keyInsights: {
-                type: 'array',
-                items: { $ref: '#/components/schemas/KeyInsight' },
-              },
-              topKeywords: { type: 'array', items: { type: 'string' } },
-              articleCount: { type: 'integer' },
-              preferenceSnapshot: {
-                type: 'object',
-                nullable: true,
-                properties: {
-                  topCategories: { type: 'array', items: { type: 'object' } },
-                  topKeywords: { type: 'array', items: { type: 'string' } },
-                  sentimentBias: { type: 'string', nullable: true },
-                },
-              },
-            },
-          },
-        },
-      },
-      PreferencesResponse: {
-        type: 'object',
-        properties: {
-          success: { type: 'boolean' },
-          data: {
-            type: 'object',
-            properties: {
-              preferences: {
-                type: 'object',
-                nullable: true,
-                properties: {
-                  topCategories: { type: 'array', items: { type: 'object' } },
-                  topKeywords: { type: 'array', items: { type: 'string' } },
-                  preferredSources: { type: 'array', items: { type: 'string' } },
-                  sentimentBias: { type: 'string', nullable: true },
-                  bookmarkCount: { type: 'integer' },
-                  analyzedAt: { type: 'string', nullable: true },
-                },
-              },
-              message: { type: 'string' },
             },
           },
         },

@@ -9,8 +9,8 @@ export default defineEventHandler(async (event) => {
 
   const date = getRouterParam(event, 'date')
 
-  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    return apiError(400, 'YYYY-MM-DD 형식의 날짜를 입력해주세요.')
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(new Date(date).getTime())) {
+    return apiError(400, 'YYYY-MM-DD 형식의 유효한 날짜를 입력해주세요.')
   }
 
   try {

@@ -8,8 +8,6 @@ export function setApiHeaders(event: H3Event) {
     'Content-Type': 'application/json',
     'Cache-Control': 'public, max-age=60, s-maxage=300',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Authorization, Content-Type',
   })
 }
 
