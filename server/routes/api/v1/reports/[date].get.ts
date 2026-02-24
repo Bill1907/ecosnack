@@ -1,15 +1,19 @@
 import { defineEventHandler, getRouterParam } from 'h3'
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { getDb } from '../../../../src/db'
 import { dailyReports, articles } from '../../../../src/db/schema'
 import { eq, desc, inArray } from 'drizzle-orm'
 import { setApiHeaders, apiSuccess, apiError } from '../../../utils/api-response'
+
+dayjs.extend(customParseFormat)
 
 export default defineEventHandler(async (event) => {
   setApiHeaders(event)
 
   const date = getRouterParam(event, 'date')
 
-  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(new Date(date).getTime())) {
+  if (!date || !dayjs(date, 'YYYY-MM-DD', true).isValid()) {
     return apiError(400, 'YYYY-MM-DD 형식의 유효한 날짜를 입력해주세요.')
   }
 

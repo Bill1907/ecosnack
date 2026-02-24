@@ -75,8 +75,8 @@ const OPENAPI_SPEC = {
           {
             name: 'q',
             in: 'query',
-            description: '검색 키워드 (제목, 설명, 키워드에서 검색)',
-            schema: { type: 'string' },
+            description: '검색 키워드 (제목, 설명, 키워드에서 검색, 최대 100자)',
+            schema: { type: 'string', maxLength: 100 },
           },
           {
             name: 'category',
@@ -109,7 +109,7 @@ const OPENAPI_SPEC = {
             name: 'cursor_date',
             in: 'query',
             description: '페이지네이션 커서 (이전 응답의 nextCursor.pubDate)',
-            schema: { type: 'string' },
+            schema: { type: 'string', format: 'date-time' },
           },
         ],
         responses: {
@@ -175,12 +175,22 @@ const OPENAPI_SPEC = {
     schemas: {
       SentimentAnalysis: {
         type: 'object',
+        nullable: true,
         properties: {
           overall: {
             type: 'string',
             enum: ['positive', 'negative', 'neutral', 'mixed'],
           },
           confidence: { type: 'number' },
+        },
+      },
+      RelatedArticle: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          title: { type: 'string' },
+          url: { type: 'string', description: '기사 원문 URL' },
+          importance: { type: 'integer', minimum: 1, maximum: 10 },
         },
       },
       ExecutiveSummary: {
@@ -195,21 +205,17 @@ const OPENAPI_SPEC = {
               properties: {
                 title: { type: 'string' },
                 description: { type: 'string' },
-                relatedArticle: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'integer' },
-                    title: { type: 'string' },
-                    importance: { type: 'integer' },
-                  },
-                },
+                relatedArticle: { $ref: '#/components/schemas/RelatedArticle' },
               },
             },
           },
           sentiment: {
             type: 'object',
             properties: {
-              overall: { type: 'string' },
+              overall: {
+                type: 'string',
+                enum: ['positive', 'negative', 'neutral', 'mixed'],
+              },
               description: { type: 'string' },
             },
           },
@@ -227,6 +233,10 @@ const OPENAPI_SPEC = {
                 title: { type: 'string' },
                 content: { type: 'string' },
                 keyData: { type: 'array', items: { type: 'string' } },
+                relatedArticles: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/RelatedArticle' },
+                },
               },
             },
           },
@@ -258,9 +268,15 @@ const OPENAPI_SPEC = {
               type: 'object',
               properties: {
                 text: { type: 'string' },
+                articleId: { type: 'integer' },
+                articleUrl: { type: 'string' },
                 source: { type: 'string' },
               },
             },
+          },
+          relatedArticles: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/RelatedArticle' },
           },
           actionItems: { type: 'array', items: { type: 'string' } },
           impact: { type: 'string', enum: ['high', 'medium', 'low'] },
@@ -275,7 +291,7 @@ const OPENAPI_SPEC = {
             type: 'object',
             properties: {
               id: { type: 'integer' },
-              reportDate: { type: 'string' },
+              reportDate: { type: 'string', format: 'date' },
               title: { type: 'string' },
               executiveSummary: { $ref: '#/components/schemas/ExecutiveSummary' },
               marketOverview: { $ref: '#/components/schemas/MarketOverview' },
@@ -306,7 +322,7 @@ const OPENAPI_SPEC = {
             type: 'object',
             properties: {
               id: { type: 'integer' },
-              reportDate: { type: 'string' },
+              reportDate: { type: 'string', format: 'date' },
               title: { type: 'string' },
               executiveSummary: { $ref: '#/components/schemas/ExecutiveSummary' },
               marketOverview: { $ref: '#/components/schemas/MarketOverview' },
@@ -332,11 +348,11 @@ const OPENAPI_SPEC = {
                   properties: {
                     id: { type: 'integer' },
                     title: { type: 'string' },
-                    headlineSummary: { type: 'string' },
-                    category: { type: 'string' },
+                    headlineSummary: { type: 'string', nullable: true },
+                    category: { type: 'string', nullable: true },
                     sentiment: { $ref: '#/components/schemas/SentimentAnalysis' },
-                    pubDate: { type: 'string' },
-                    source: { type: 'string' },
+                    pubDate: { type: 'string', format: 'date-time', nullable: true },
+                    source: { type: 'string', nullable: true },
                   },
                 },
               },
@@ -359,16 +375,20 @@ const OPENAPI_SPEC = {
                     id: { type: 'integer' },
                     title: { type: 'string' },
                     link: { type: 'string', description: '원문 URL' },
-                    description: { type: 'string' },
+                    description: { type: 'string', nullable: true },
                     imageUrl: { type: 'string', nullable: true },
-                    headlineSummary: { type: 'string' },
-                    category: { type: 'string' },
+                    headlineSummary: { type: 'string', nullable: true },
+                    category: { type: 'string', nullable: true },
                     sentiment: { $ref: '#/components/schemas/SentimentAnalysis' },
-                    importanceScore: { type: 'integer' },
-                    pubDate: { type: 'string' },
-                    source: { type: 'string' },
-                    region: { type: 'string', enum: ['KR', 'US'] },
-                    keywords: { type: 'array', items: { type: 'string' } },
+                    importanceScore: { type: 'integer', nullable: true },
+                    pubDate: { type: 'string', format: 'date-time', nullable: true },
+                    source: { type: 'string', nullable: true },
+                    region: { type: 'string', enum: ['KR', 'US'], nullable: true },
+                    keywords: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      nullable: true,
+                    },
                   },
                 },
               },
@@ -378,7 +398,7 @@ const OPENAPI_SPEC = {
                 description: '다음 페이지 요청 시 cursor_id, cursor_date 파라미터로 전달',
                 properties: {
                   id: { type: 'integer' },
-                  pubDate: { type: 'string', nullable: true },
+                  pubDate: { type: 'string', format: 'date-time', nullable: true },
                 },
               },
               hasNextPage: { type: 'boolean' },
@@ -396,18 +416,23 @@ const OPENAPI_SPEC = {
               id: { type: 'integer' },
               title: { type: 'string' },
               link: { type: 'string', description: '원문 URL' },
-              description: { type: 'string' },
+              description: { type: 'string', nullable: true },
               imageUrl: { type: 'string', nullable: true },
-              headlineSummary: { type: 'string' },
-              pubDate: { type: 'string' },
-              source: { type: 'string' },
-              region: { type: 'string' },
-              category: { type: 'string' },
+              headlineSummary: { type: 'string', nullable: true },
+              pubDate: { type: 'string', format: 'date-time', nullable: true },
+              source: { type: 'string', nullable: true },
+              region: { type: 'string', nullable: true },
+              category: { type: 'string', nullable: true },
               sentiment: { $ref: '#/components/schemas/SentimentAnalysis' },
-              importanceScore: { type: 'integer' },
-              keywords: { type: 'array', items: { type: 'string' } },
+              importanceScore: { type: 'integer', nullable: true },
+              keywords: {
+                type: 'array',
+                items: { type: 'string' },
+                nullable: true,
+              },
               soWhat: {
                 type: 'object',
+                nullable: true,
                 description: '핵심 포인트 분석',
                 properties: {
                   main_point: { type: 'string' },
@@ -417,6 +442,7 @@ const OPENAPI_SPEC = {
               },
               impactAnalysis: {
                 type: 'object',
+                nullable: true,
                 description: '이해관계자별 영향 분석',
                 properties: {
                   investors: {
@@ -447,6 +473,7 @@ const OPENAPI_SPEC = {
               },
               relatedContext: {
                 type: 'object',
+                nullable: true,
                 description: '관련 배경 및 전망',
                 properties: {
                   background: { type: 'string' },
@@ -472,7 +499,11 @@ const OPENAPI_SPEC = {
                   properties: {
                     category: { type: 'string' },
                     articleCount: { type: 'integer' },
-                    latestArticle: { type: 'string' },
+                    latestArticle: {
+                      type: 'string',
+                      format: 'date-time',
+                      nullable: true,
+                    },
                   },
                 },
               },

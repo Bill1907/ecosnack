@@ -4,6 +4,13 @@ import { articles } from '../../../../src/db/schema'
 import { eq, desc, and, or, lt, sql } from 'drizzle-orm'
 import { setApiHeaders, apiSuccess, apiError } from '../../../utils/api-response'
 
+const VALID_CATEGORIES = ['economy', 'finance', 'business', 'markets', 'policy', 'trade']
+const MAX_SEARCH_LENGTH = 100
+
+function escapeLike(str: string): string {
+  return str.replace(/[\\%_]/g, '\\$&')
+}
+
 export default defineEventHandler(async (event) => {
   setApiHeaders(event)
 
@@ -16,6 +23,14 @@ export default defineEventHandler(async (event) => {
     const cursorId = query.cursor_id ? Number(query.cursor_id) : undefined
     const cursorDate = query.cursor_date as string | undefined
 
+    if (search && search.length > MAX_SEARCH_LENGTH) {
+      return apiError(400, `검색어는 ${MAX_SEARCH_LENGTH}자 이내여야 합니다.`)
+    }
+
+    if (category && !VALID_CATEGORIES.includes(category)) {
+      return apiError(400, '유효한 카테고리를 선택해주세요: ' + VALID_CATEGORIES.join(', '))
+    }
+
     const db = getDb()
     const conditions = []
 
@@ -24,10 +39,11 @@ export default defineEventHandler(async (event) => {
     }
 
     if (search) {
+      const escaped = escapeLike(search)
       conditions.push(
         or(
-          sql`${articles.title} ILIKE ${`%${search}%`}`,
-          sql`${articles.description} ILIKE ${`%${search}%`}`,
+          sql`${articles.title} ILIKE ${`%${escaped}%`}`,
+          sql`${articles.description} ILIKE ${`%${escaped}%`}`,
           sql`${search} = ANY(${articles.keywords})`
         )
       )
