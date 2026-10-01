@@ -5,6 +5,7 @@ import { getDb } from '@/db'
 import { bookmarks, users, articles } from '@/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
 import { z } from 'zod'
+import { articleCardColumns } from './article-columns'
 
 // 북마크 토글 (추가/제거)
 export const toggleBookmark = createServerFn({ method: 'POST' })
@@ -102,19 +103,17 @@ export const getUserBookmarks = createServerFn({ method: 'GET' }).handler(
     }
 
     const db = getDb()
+    // 카드에 필요한 컬럼 + 북마크 시각만 조회
     const result = await db
       .select({
-        bookmark: bookmarks,
-        article: articles,
+        ...articleCardColumns,
+        bookmarkedAt: bookmarks.createdAt,
       })
       .from(bookmarks)
       .innerJoin(articles, eq(bookmarks.articleId, articles.id))
       .where(eq(bookmarks.userId, userId))
       .orderBy(desc(bookmarks.createdAt))
 
-    return result.map((row) => ({
-      ...row.article,
-      bookmarkedAt: row.bookmark.createdAt,
-    }))
+    return result
   }
 )

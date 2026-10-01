@@ -1,11 +1,11 @@
 import { Link } from '@tanstack/react-router'
 import { CategoryBadge } from './CategoryBadge'
 import { BookmarkButton } from './BookmarkButton'
-import type { Article } from '../db/schema'
+import type { ArticleCard } from '../lib/article-columns'
 import { formatRelativeTime } from '../lib/utils'
 
 interface NewsCardProps {
-  article: Article
+  article: ArticleCard
 }
 
 export function NewsCard({ article }: NewsCardProps) {

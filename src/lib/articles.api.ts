@@ -1,22 +1,14 @@
 import { createServerFn } from '@tanstack/react-start'
 import { zodValidator } from '@tanstack/zod-adapter'
+import { auth } from '@clerk/tanstack-react-start/server'
 import { getDb } from '@/db'
 import { articles, categoryStats } from '@/db/schema'
 import { eq, desc, sql, and, or, lt } from 'drizzle-orm'
 import { z } from 'zod'
-
-// 전체 기사 목록 조회
-export const getArticles = createServerFn().handler(async () => {
-  const db = getDb()
-  const result = await db
-    .select()
-    .from(articles)
-    .orderBy(desc(articles.pubDate))
-
-  return result
-})
+import { articleCardColumns } from './article-columns'
 
 // 단일 기사 조회
+// 비로그인 사용자에게는 회원 전용 분석(영향 분석, 배경 정보, 감성/신뢰도)을 내려주지 않는다
 export const getArticleById = createServerFn()
   .inputValidator(zodValidator(z.number()))
   .handler(async ({ data: id }) => {
@@ -27,21 +19,25 @@ export const getArticleById = createServerFn()
       .where(eq(articles.id, id))
       .limit(1)
 
-    return result[0] ?? null
-  })
+    const article = result[0]
+    if (!article) {
+      return null
+    }
 
-// 카테고리별 기사 조회
-export const getArticlesByCategory = createServerFn()
-  .inputValidator(zodValidator(z.string()))
-  .handler(async ({ data: category }) => {
-    const db = getDb()
-    const result = await db
-      .select()
-      .from(articles)
-      .where(eq(articles.category, category))
-      .orderBy(desc(articles.pubDate))
+    const { userId } = await auth()
+    if (!userId) {
+      return {
+        article: {
+          ...article,
+          impactAnalysis: null,
+          relatedContext: null,
+          sentiment: null,
+        },
+        isGated: true,
+      }
+    }
 
-    return result
+    return { article, isGated: false }
   })
 
 // 페이지네이션 입력 스키마
@@ -108,7 +104,7 @@ export const getArticlesPaginated = createServerFn()
 
     // 쿼리 실행 (limit + 1로 hasNextPage 판별)
     const result = await db
-      .select()
+      .select(articleCardColumns)
       .from(articles)
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(articles.pubDate), desc(articles.id))
@@ -155,11 +151,4 @@ export const getCategories = createServerFn().handler(async () => {
     .orderBy(categoryStats.category)
 
   return result.map((row) => row.category)
-})
-
-// Materialized View 갱신 (기사 추가 후 호출)
-export const refreshCategoryStats = createServerFn().handler(async () => {
-  const db = getDb()
-  await db.execute(sql`REFRESH MATERIALIZED VIEW category_stats`)
-  return { success: true }
 })
