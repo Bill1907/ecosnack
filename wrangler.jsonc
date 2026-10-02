@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ecosnack",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@tanstack/react-start/server-entry",
+  "observability": {
+    "enabled": true
+  },
+  // 운영(main): heyvona.com 존의 Worker route.
+  // 루트 A 레코드는 프록시된 더미 IP(192.0.2.1)이고, 요청은 이 route 로만 처리된다.
+  // www → 루트 301 은 존의 Redirect Rule("www to apex")이 담당한다.
+  "routes": [
+    { "pattern": "heyvona.com/*", "zone_name": "heyvona.com" },
+    { "pattern": "www.heyvona.com/*", "zone_name": "heyvona.com" }
+  ],
+  "env": {
+    // dev 브랜치용 Worker (CLOUDFLARE_ENV=dev 로 빌드)
+    "dev": {
+      "name": "ecosnack-dev",
+      "routes": [{ "pattern": "dev.heyvona.com", "custom_domain": true }]
+    }
+  }
+}

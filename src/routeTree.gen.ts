@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -25,6 +26,11 @@ import { Route as ApiWebhooksClerkRouteImport } from './routes/api.webhooks.cler
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/article/$id': typeof ArticleIdRoute
   '/daily-report/$date': typeof DailyReportDateRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/article/$id': typeof ArticleIdRoute
   '/daily-report/$date': typeof DailyReportDateRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/article/$id': typeof ArticleIdRoute
   '/daily-report/$date': typeof DailyReportDateRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/news'
     | '/privacy'
+    | '/sitemap.xml'
     | '/terms'
     | '/article/$id'
     | '/daily-report/$date'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/news'
     | '/privacy'
+    | '/sitemap.xml'
     | '/terms'
     | '/article/$id'
     | '/daily-report/$date'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/news'
     | '/privacy'
+    | '/sitemap.xml'
     | '/terms'
     | '/article/$id'
     | '/daily-report/$date'
@@ -178,6 +190,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   NewsRoute: typeof NewsRoute
   PrivacyRoute: typeof PrivacyRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ArticleIdRoute: typeof ArticleIdRoute
   DailyReportDateRoute: typeof DailyReportDateRoute
@@ -193,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -282,6 +302,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   NewsRoute: NewsRoute,
   PrivacyRoute: PrivacyRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ArticleIdRoute: ArticleIdRoute,
   DailyReportDateRoute: DailyReportDateRoute,

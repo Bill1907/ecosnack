@@ -1,4 +1,5 @@
 import type { Article } from '../db/schema'
+import type { ArticleCard } from './article-columns'
 
 /**
  * SEO 관련 유틸리티 함수들
@@ -270,7 +271,7 @@ export function getCollectionPageJsonLd({
 /**
  * ItemList JSON-LD 구조화 데이터 생성 (기사 목록용)
  */
-export function getItemListJsonLd(articles: Article[]) {
+export function getItemListJsonLd(articles: ArticleCard[]) {
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',

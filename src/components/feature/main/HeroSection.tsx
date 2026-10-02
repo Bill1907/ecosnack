@@ -2,23 +2,15 @@ import { Link } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 
 export function HeroSection() {
-  // 어제 날짜 계산 (YYYY-MM-DD 형식)
+  // 어제 날짜 계산 (YYYY-MM-DD 형식, KST 기준)
   const getYesterdayDate = () => {
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    return yesterday.toISOString().split('T')[0]
+    const now = new Date()
+    // KST(UTC+9) 기준으로 현재 날짜 계산 (SSR/클라이언트 타임존 차이 방지)
+    const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000)
+    kstNow.setUTCDate(kstNow.getUTCDate() - 1)
+    return kstNow.toISOString().split('T')[0]
   }
 
-  const handleNewsClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    // 뉴스 섹션으로 부드럽게 스크롤
-    const newsSection = document.querySelector(
-      '.grid.grid-cols-1.md\\:grid-cols-3',
-    )
-    if (newsSection) {
-      newsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }
   return (
     <section className="relative overflow-hidden bg-background">
       {/* 배경 패턴/장식 - 더 풍부한 색감과 깊이감 */}

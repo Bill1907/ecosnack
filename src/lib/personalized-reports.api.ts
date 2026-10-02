@@ -5,6 +5,7 @@ import { getDb } from '@/db'
 import { personalizedDailyReports, articles } from '@/db/schema'
 import { eq, desc, and, inArray } from 'drizzle-orm'
 import { z } from 'zod'
+import { articleCardColumns } from './article-columns'
 
 // 페이지네이션 입력 스키마
 const PaginationInputSchema = z.object({
@@ -105,7 +106,7 @@ export const getPersonalizedReportWithArticles = createServerFn({
     const relatedArticles =
       report.articleIds.length > 0
         ? await db
-            .select()
+            .select(articleCardColumns)
             .from(articles)
             .where(inArray(articles.id, report.articleIds))
             .orderBy(desc(articles.pubDate))

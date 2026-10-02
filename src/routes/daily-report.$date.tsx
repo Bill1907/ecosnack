@@ -24,7 +24,7 @@ export const Route = createFileRoute('/daily-report/$date')({
     const result = await getDailyReportWithArticles({ data: params.date })
 
     if (!result) {
-      throw new Error('해당 날짜의 데일리 리포트를 찾을 수 없습니다')
+      return { report: null, articles: [] }
     }
 
     return result
@@ -156,6 +156,14 @@ function DailyReportDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
+
+  if (!report) {
+    return (
+      <div className="bg-background min-h-screen flex flex-col">
+        <DailyReportNotFound />
+      </div>
+    )
+  }
 
   // 날짜 네비게이션 계산
   const currentDate = new Date(report.reportDate)
