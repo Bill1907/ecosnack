@@ -23,9 +23,9 @@ function PrivacyPolicyPage() {
 
         <div className="prose prose-neutral dark:prose-invert max-w-none space-y-8">
           <p className="text-muted-foreground">
-            <strong>시행일:</strong> 2025년 1월 1일
+            <strong>시행일:</strong> 2026년 10월 2일
             <br />
-            <strong>최종 수정일:</strong> 2025년 1월 20일
+            <strong>최종 수정일:</strong> 2026년 10월 2일
           </p>
 
           <section className="space-y-4">
@@ -37,9 +37,9 @@ function PrivacyPolicyPage() {
               필요한 조치를 이행할 예정입니다.
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>회원 가입 의사 확인, 회원제 서비스 제공에 따른 본인 식별·인증</li>
-              <li>회원자격 유지·관리, 서비스 부정이용 방지</li>
-              <li>콘텐츠 제공, 맞춤 서비스 제공</li>
+              <li>서비스 부정이용 방지</li>
+              <li>콘텐츠 제공</li>
+              <li>이용자 문의에 대한 회신</li>
               <li>서비스 이용기록과 접속 빈도 분석, 서비스 이용에 대한 통계</li>
             </ul>
           </section>
@@ -47,11 +47,11 @@ function PrivacyPolicyPage() {
           <section className="space-y-4">
             <h2 className="text-xl font-semibold text-foreground">2. 수집하는 개인정보 항목</h2>
             <p className="text-muted-foreground leading-relaxed">
-              회사는 서비스 제공을 위해 다음과 같은 개인정보를 수집합니다.
+              회사는 회원가입 절차 없이 서비스를 제공하며, 다음과 같은 개인정보를 수집합니다.
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li><strong>필수항목:</strong> 이메일 주소, 이름(닉네임)</li>
-              <li><strong>자동수집항목:</strong> 서비스 이용 기록, 접속 로그, 쿠키, 접속 IP 정보, 브라우저 정보</li>
+              <li><strong>자동수집항목:</strong> 서비스 이용 기록, 접속 로그, 쿠키, 접속 IP 정보, 브라우저 정보 (PostHog 분석 도구를 통해 수집)</li>
+              <li><strong>문의 시 수집항목:</strong> 이용자가 보낸 이메일 주소 및 문의 내용</li>
             </ul>
           </section>
 
@@ -62,7 +62,6 @@ function PrivacyPolicyPage() {
               동의 받은 개인정보 보유·이용기간 내에서 개인정보를 처리·보유합니다.
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li><strong>회원 정보:</strong> 회원 탈퇴 시까지 (단, 관계 법령에 따라 보존이 필요한 경우 해당 기간 동안 보관)</li>
               <li><strong>서비스 이용 기록:</strong> 3년</li>
             </ul>
           </section>
@@ -86,15 +85,14 @@ function PrivacyPolicyPage() {
           <section className="space-y-4">
             <h2 className="text-xl font-semibold text-foreground">5. 쿠키(Cookie)의 사용</h2>
             <p className="text-muted-foreground leading-relaxed">
-              회사는 이용자에게 개별적인 맞춤서비스를 제공하기 위해 쿠키(cookie)를 사용합니다.
+              회사는 서비스 이용 통계 분석과 광고 게재를 위해 쿠키(cookie)를 사용합니다.
               쿠키는 웹사이트가 이용자의 컴퓨터 브라우저로 보내는 소량의 정보입니다.
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
               <li><strong>쿠키 사용 목적:</strong> 이용자의 접속 빈도나 방문 시간 등을 분석,
                   이용자의 관심분야를 파악, 서비스 개선에 활용</li>
               <li><strong>쿠키 설정 거부 방법:</strong> 이용자는 웹 브라우저에서 옵션을 설정하여
-                  모든 쿠키를 허용하거나 거부할 수 있습니다. 단, 쿠키 저장을 거부할 경우
-                  맞춤형 서비스 이용에 어려움이 있을 수 있습니다.</li>
+                  모든 쿠키를 허용하거나 거부할 수 있습니다.</li>
             </ul>
           </section>
 

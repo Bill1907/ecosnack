@@ -1,9 +1,4 @@
-import {
-  createFileRoute,
-  ErrorComponentProps,
-  useRouter,
-} from '@tanstack/react-router'
-import { useAuth } from '@clerk/tanstack-react-start'
+import { createFileRoute, ErrorComponentProps } from '@tanstack/react-router'
 import { usePostHog } from 'posthog-js/react'
 import { ArticleHeader } from '../components/feature/article/ArticleHeader'
 import { ImpactItem } from '../components/feature/article/ImpactItem'
@@ -18,25 +13,17 @@ import {
 } from '../lib/seo'
 import { TIME_HORIZON_CONFIG } from '@/lib/const'
 import ArticleNotFound from '@/components/feature/article/ArticleNotFound'
-import { useEffect, useRef } from 'react'
-import { getAuthStatus } from '@/lib/auth.middleware'
-import { LoginRequiredOverlay } from '@/components/feature/article/LoginRequiredOverlay'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute('/article/$id')({
-  // SSR 시점에 인증 상태 확인
-  beforeLoad: async () => {
-    const { isAuthenticated } = await getAuthStatus()
-    return { isAuthenticated }
-  },
   loader: async ({ params }) => {
-    // 비로그인이면 회원 전용 필드가 null 로 비워진 채(isGated: true) 내려온다
-    const result = await getArticleById({ data: Number(params.id) })
+    const article = await getArticleById({ data: Number(params.id) })
 
-    if (!result) {
+    if (!article) {
       throw new Error('존재하지 않는 기사입니다')
     }
 
-    return { article: result.article, isGated: result.isGated }
+    return { article }
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -86,7 +73,6 @@ export const Route = createFileRoute('/article/$id')({
             getBreadcrumbJsonLd([
               { name: '홈', url: '/' },
               { name: article.title, url: `/article/${article.id}` },
-              { name: '북마크', url: `/bookmarks` },
             ]),
           ),
         },
@@ -119,34 +105,11 @@ function ArticleErrorComponent({ error }: ErrorComponentProps) {
 }
 
 function ArticleDetailPage() {
-  const { article, isGated } = Route.useLoaderData()
-  const { isAuthenticated: ssrIsAuthenticated } = Route.useRouteContext()
-  const { isSignedIn } = useAuth() // 클라이언트 사이드 인증 체크
-  const router = useRouter()
-  // 기사별로 재조회를 한 번만 시도하기 위한 기록 (무한 루프 방지)
-  const refetchedArticleIdRef = useRef<number | null>(null)
-
-  // SSR: ssrIsAuthenticated 사용
-  const isAuthenticated =
-    typeof window === 'undefined' ? ssrIsAuthenticated : isSignedIn
+  const { article } = Route.useLoaderData()
 
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
-
-  // 모달 로그인 직후: 로더 데이터가 비로그인(gated) 버전이면 회원용 데이터로 다시 불러온다
-  useEffect(() => {
-    if (!isSignedIn) {
-      // 로그아웃 상태로 돌아오면 다음 로그인 때 다시 시도할 수 있게 초기화
-      refetchedArticleIdRef.current = null
-      return
-    }
-    if (!isGated || refetchedArticleIdRef.current === article.id) {
-      return
-    }
-    refetchedArticleIdRef.current = article.id
-    router.invalidate()
-  }, [isSignedIn, isGated, article.id, router])
 
   return (
     <div className="bg-background min-h-screen flex flex-col">
@@ -245,129 +208,122 @@ function ArticleDetailPage() {
             </div>
           )}
 
-          {/* 로그인하지 않은 사용자 */}
-          {!isAuthenticated && <LoginRequiredOverlay />}
+          {/* 영향 분석 */}
+          {article.impactAnalysis && (
+            <div className="mb-8 space-y-4">
+              <h3 className="text-lg font-semibold text-foreground">
+                영향 분석 📊
+              </h3>
 
-          {/* 로그인한 사용자 */}
-          {isAuthenticated && (
-            <>
-              {article.impactAnalysis && (
-                <div className="mb-8 space-y-4">
-                  <h3 className="text-lg font-semibold text-foreground">
-                    영향 분석 📊
+              {/* Investors Impact */}
+              <ImpactItem
+                type="investors"
+                data={article.impactAnalysis.investors}
+              />
+
+              {/* Workers Impact */}
+              <ImpactItem
+                type="workers"
+                data={article.impactAnalysis.workers}
+              />
+
+              {/* Consumers Impact */}
+              <ImpactItem
+                type="consumers"
+                data={article.impactAnalysis.consumers}
+              />
+            </div>
+          )}
+
+          {/* Related Context */}
+          {article.relatedContext && (
+            <div className="mb-8 bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-950/40 dark:to-zinc-950/40 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-900/30 overflow-hidden hover:shadow-md">
+              {/* Header */}
+              <div className="p-6 pb-4">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
+                    📚
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground pt-1.5 text-responsive-lg">
+                    배경 정보
                   </h3>
-
-                  {/* Investors Impact */}
-                  <ImpactItem
-                    type="investors"
-                    data={article.impactAnalysis.investors}
-                  />
-
-                  {/* Workers Impact */}
-                  <ImpactItem
-                    type="workers"
-                    data={article.impactAnalysis.workers}
-                  />
-
-                  {/* Consumers Impact */}
-                  <ImpactItem
-                    type="consumers"
-                    data={article.impactAnalysis.consumers}
-                  />
                 </div>
-              )}
+                <p className="text-muted-foreground text-responsive-base leading-relaxed">
+                  {article.relatedContext.background}
+                </p>
+              </div>
 
-              {/* Related Context */}
-              {article.relatedContext && (
-                <div className="mb-8 bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-950/40 dark:to-zinc-950/40 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-900/30 overflow-hidden hover:shadow-md">
-                  {/* Header */}
-                  <div className="p-6 pb-4">
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">
-                        📚
-                      </div>
-                      <h3 className="text-lg font-semibold text-foreground pt-1.5 text-responsive-lg">
-                        배경 정보
-                      </h3>
+              {/* Content */}
+              <div className="px-6 pb-6 space-y-4">
+                {/* Related Events */}
+                {article.relatedContext.related_events.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2.5 text-foreground flex items-center gap-2 text-responsive-sm">
+                      연관된 최근 이슈
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {article.relatedContext.related_events.map(
+                        (event: string, i: number) => (
+                          <span
+                            key={i}
+                            className="px-3 py-1.5 bg-card text-card-foreground rounded-lg text-sm font-medium border transition-all hover:scale-105"
+                          >
+                            {event}
+                          </span>
+                        ),
+                      )}
                     </div>
-                    <p className="text-muted-foreground text-responsive-base leading-relaxed">
-                      {article.relatedContext.background}
+                  </div>
+                )}
+
+                {/* What to Watch */}
+                {article.relatedContext.what_to_watch && (
+                  <div className="bg-card/50 rounded-lg p-4">
+                    <h4 className="text-sm font-semibold mb-2 text-foreground flex items-center gap-2">
+                      <span className="text-slate-600 dark:text-slate-400">
+                        👀
+                      </span>
+                      주목할 후속 이벤트
+                    </h4>
+                    <p
+                      className="text-muted-foreground leading-relaxed"
+                      style={{ fontSize: '14px' }}
+                    >
+                      {article.relatedContext.what_to_watch}
                     </p>
                   </div>
+                )}
+              </div>
+            </div>
+          )}
 
-                  {/* Content */}
-                  <div className="px-6 pb-6 space-y-4">
-                    {/* Related Events */}
-                    {article.relatedContext.related_events.length > 0 && (
-                      <div>
-                        <h4 className="text-sm font-semibold mb-2.5 text-foreground flex items-center gap-2 text-responsive-sm">
-                          연관된 최근 이슈
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
-                          {article.relatedContext.related_events.map(
-                            (event: string, i: number) => (
-                              <span
-                                key={i}
-                                className="px-3 py-1.5 bg-card text-card-foreground rounded-lg text-sm font-medium border transition-all hover:scale-105"
-                              >
-                                {event}
-                              </span>
-                            ),
-                          )}
-                        </div>
-                      </div>
-                    )}
+          {/* Sentiment */}
+          {article.sentiment && (
+            <div className="mb-6 flex items-center gap-3">
+              <span
+                className="text-muted-foreground"
+                style={{ fontSize: '13px' }}
+              >
+                신뢰도: {Math.round(article.sentiment.confidence * 100)}%
+              </span>
+            </div>
+          )}
 
-                    {/* What to Watch */}
-                    {article.relatedContext.what_to_watch && (
-                      <div className="bg-card/50 rounded-lg p-4">
-                        <h4 className="text-sm font-semibold mb-2 text-foreground flex items-center gap-2">
-                          <span className="text-slate-600 dark:text-slate-400">
-                            👀
-                          </span>
-                          주목할 후속 이벤트
-                        </h4>
-                        <p
-                          className="text-muted-foreground leading-relaxed"
-                          style={{ fontSize: '14px' }}
-                        >
-                          {article.relatedContext.what_to_watch}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Sentiment */}
-              {article.sentiment && (
-                <div className="mb-6 flex items-center gap-3">
+          {/* Keywords/Tags */}
+          {article.keywords && article.keywords.length > 0 && (
+            <div className="mt-8 pt-8 border-t border-border">
+              <div className="flex flex-wrap gap-2">
+                {article.keywords.map((keyword: string) => (
                   <span
-                    className="text-muted-foreground"
-                    style={{ fontSize: '13px' }}
+                    key={keyword}
+                    className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 cursor-pointer"
+                    style={{ fontSize: '13px', fontWeight: '500' }}
                   >
-                    신뢰도: {Math.round(article.sentiment.confidence * 100)}%
+                    #{keyword}
                   </span>
-                </div>
-              )}
-
-              {/* Keywords/Tags */}
-              {article.keywords && article.keywords.length > 0 && (
-                <div className="mt-8 pt-8 border-t border-border">
-                  <div className="flex flex-wrap gap-2">
-                    {article.keywords.map((keyword: string) => (
-                      <span
-                        key={keyword}
-                        className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 cursor-pointer"
-                        style={{ fontSize: '13px', fontWeight: '500' }}
-                      >
-                        #{keyword}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </article>

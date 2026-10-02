@@ -1,5 +1,4 @@
 import { ShareButtons } from './ShareButtons'
-import { BookmarkButton } from '@/components/BookmarkButton'
 import type { Article } from '@/db/schema'
 import { CategoryBadge } from '@/components/CategoryBadge'
 import { formatRelativeTime } from '@/lib/utils'
@@ -50,7 +49,6 @@ export function ArticleHeader({ article }: ArticleHeaderProps) {
           )}
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <BookmarkButton articleId={article.id} size="md" showLabel />
           <ShareButtons />
         </div>
       </div>

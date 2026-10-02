@@ -14,14 +14,10 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as ContactRouteImport } from './routes/contact'
-import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as MyReportIndexRouteImport } from './routes/my-report.index'
-import { Route as MyReportDateRouteImport } from './routes/my-report.$date'
 import { Route as DailyReportDateRouteImport } from './routes/daily-report.$date'
 import { Route as ArticleIdRouteImport } from './routes/article.$id'
-import { Route as ApiWebhooksClerkRouteImport } from './routes/api.webhooks.clerk'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -48,11 +44,6 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BookmarksRoute = BookmarksRouteImport.update({
-  id: '/bookmarks',
-  path: '/bookmarks',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -61,16 +52,6 @@ const AboutRoute = AboutRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MyReportIndexRoute = MyReportIndexRouteImport.update({
-  id: '/my-report/',
-  path: '/my-report/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MyReportDateRoute = MyReportDateRouteImport.update({
-  id: '/my-report/$date',
-  path: '/my-report/$date',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DailyReportDateRoute = DailyReportDateRouteImport.update({
@@ -83,16 +64,10 @@ const ArticleIdRoute = ArticleIdRouteImport.update({
   path: '/article/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiWebhooksClerkRoute = ApiWebhooksClerkRouteImport.update({
-  id: '/api/webhooks/clerk',
-  path: '/api/webhooks/clerk',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/bookmarks': typeof BookmarksRoute
   '/contact': typeof ContactRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
@@ -100,14 +75,10 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/article/$id': typeof ArticleIdRoute
   '/daily-report/$date': typeof DailyReportDateRoute
-  '/my-report/$date': typeof MyReportDateRoute
-  '/my-report': typeof MyReportIndexRoute
-  '/api/webhooks/clerk': typeof ApiWebhooksClerkRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/bookmarks': typeof BookmarksRoute
   '/contact': typeof ContactRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
@@ -115,15 +86,11 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/article/$id': typeof ArticleIdRoute
   '/daily-report/$date': typeof DailyReportDateRoute
-  '/my-report/$date': typeof MyReportDateRoute
-  '/my-report': typeof MyReportIndexRoute
-  '/api/webhooks/clerk': typeof ApiWebhooksClerkRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/bookmarks': typeof BookmarksRoute
   '/contact': typeof ContactRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
@@ -131,16 +98,12 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/article/$id': typeof ArticleIdRoute
   '/daily-report/$date': typeof DailyReportDateRoute
-  '/my-report/$date': typeof MyReportDateRoute
-  '/my-report/': typeof MyReportIndexRoute
-  '/api/webhooks/clerk': typeof ApiWebhooksClerkRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
-    | '/bookmarks'
     | '/contact'
     | '/news'
     | '/privacy'
@@ -148,14 +111,10 @@ export interface FileRouteTypes {
     | '/terms'
     | '/article/$id'
     | '/daily-report/$date'
-    | '/my-report/$date'
-    | '/my-report'
-    | '/api/webhooks/clerk'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
-    | '/bookmarks'
     | '/contact'
     | '/news'
     | '/privacy'
@@ -163,14 +122,10 @@ export interface FileRouteTypes {
     | '/terms'
     | '/article/$id'
     | '/daily-report/$date'
-    | '/my-report/$date'
-    | '/my-report'
-    | '/api/webhooks/clerk'
   id:
     | '__root__'
     | '/'
     | '/about'
-    | '/bookmarks'
     | '/contact'
     | '/news'
     | '/privacy'
@@ -178,15 +133,11 @@ export interface FileRouteTypes {
     | '/terms'
     | '/article/$id'
     | '/daily-report/$date'
-    | '/my-report/$date'
-    | '/my-report/'
-    | '/api/webhooks/clerk'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  BookmarksRoute: typeof BookmarksRoute
   ContactRoute: typeof ContactRoute
   NewsRoute: typeof NewsRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -194,9 +145,6 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   ArticleIdRoute: typeof ArticleIdRoute
   DailyReportDateRoute: typeof DailyReportDateRoute
-  MyReportDateRoute: typeof MyReportDateRoute
-  MyReportIndexRoute: typeof MyReportIndexRoute
-  ApiWebhooksClerkRoute: typeof ApiWebhooksClerkRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -236,13 +184,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/bookmarks': {
-      id: '/bookmarks'
-      path: '/bookmarks'
-      fullPath: '/bookmarks'
-      preLoaderRoute: typeof BookmarksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -255,20 +196,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/my-report/': {
-      id: '/my-report/'
-      path: '/my-report'
-      fullPath: '/my-report'
-      preLoaderRoute: typeof MyReportIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/my-report/$date': {
-      id: '/my-report/$date'
-      path: '/my-report/$date'
-      fullPath: '/my-report/$date'
-      preLoaderRoute: typeof MyReportDateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/daily-report/$date': {
@@ -285,20 +212,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArticleIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/webhooks/clerk': {
-      id: '/api/webhooks/clerk'
-      path: '/api/webhooks/clerk'
-      fullPath: '/api/webhooks/clerk'
-      preLoaderRoute: typeof ApiWebhooksClerkRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  BookmarksRoute: BookmarksRoute,
   ContactRoute: ContactRoute,
   NewsRoute: NewsRoute,
   PrivacyRoute: PrivacyRoute,
@@ -306,9 +225,6 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ArticleIdRoute: ArticleIdRoute,
   DailyReportDateRoute: DailyReportDateRoute,
-  MyReportDateRoute: MyReportDateRoute,
-  MyReportIndexRoute: MyReportIndexRoute,
-  ApiWebhooksClerkRoute: ApiWebhooksClerkRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
