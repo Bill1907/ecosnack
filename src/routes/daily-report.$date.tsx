@@ -18,6 +18,7 @@ import {
   getBreadcrumbJsonLd,
   truncateDescription,
 } from '../lib/seo'
+import { formatKstDate, shiftDate, todayKst } from '@/lib/date'
 
 export const Route = createFileRoute('/daily-report/$date')({
   loader: async ({ params }) => {
@@ -39,8 +40,7 @@ export const Route = createFileRoute('/daily-report/$date')({
       return {}
     }
 
-    const reportDate = new Date(report.reportDate)
-    const formattedDate = reportDate.toLocaleDateString('ko-KR', {
+    const formattedDate = formatKstDate(report.reportDate, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -166,23 +166,11 @@ function DailyReportDetailPage() {
   }
 
   // 날짜 네비게이션 계산
-  const currentDate = new Date(report.reportDate)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  // 'YYYY-MM-DD' 문자열로만 계산해 서버(UTC)·브라우저 시간대와 무관하게 같은 결과를 낸다
+  const getPreviousDate = () => shiftDate(report.reportDate, -1)
+  const getNextDate = () => shiftDate(report.reportDate, 1)
 
-  const getPreviousDate = () => {
-    const prev = new Date(currentDate)
-    prev.setDate(prev.getDate() - 1)
-    return prev.toISOString().split('T')[0]
-  }
-
-  const getNextDate = () => {
-    const next = new Date(currentDate)
-    next.setDate(next.getDate() + 1)
-    return next.toISOString().split('T')[0]
-  }
-
-  const isLatestReport = currentDate >= today
+  const isLatestReport = report.reportDate >= todayKst()
 
   return (
     <div className="bg-background min-h-screen flex flex-col">
@@ -191,7 +179,7 @@ function DailyReportDetailPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
-              {new Date(report.reportDate).toLocaleDateString('ko-KR', {
+              {formatKstDate(report.reportDate, {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
@@ -368,10 +356,7 @@ function DailyReportDetailPage() {
                           <span>{article.source}</span>
                           <span>•</span>
                           <span>
-                            {article.pubDate &&
-                              new Date(article.pubDate).toLocaleDateString(
-                                'ko-KR',
-                              )}
+                            {article.pubDate && formatKstDate(article.pubDate)}
                           </span>
                         </div>
                       </div>
@@ -399,7 +384,7 @@ function DailyReportDetailPage() {
             {/* Current Date Display */}
             <div className="text-center">
               <div className="text-sm text-muted-foreground">
-                {new Date(report.reportDate).toLocaleDateString('ko-KR', {
+                {formatKstDate(report.reportDate, {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',

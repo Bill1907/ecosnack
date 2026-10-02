@@ -1,5 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query'
 import {
+  ClientOnly,
   HeadContent,
   Outlet,
   Scripts,
@@ -35,6 +36,9 @@ import { useThemeStore } from '../stores/themeStore'
 import { Footer } from '@/components/Footer'
 import { ErrorComponent } from '@/components/ErrorComponent'
 import { NotFound } from '@/components/NotFound'
+
+const ADSENSE_SRC =
+  'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1946825662622426'
 
 const posthogOptions = {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
@@ -117,11 +121,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
           })();
         `,
       },
-      {
-        src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1946825662622426',
-        async: true,
-        crossOrigin: 'anonymous',
-      },
+      // AdSense 스크립트는 여기(head().scripts)에 두지 않는다.
+      // TanStack Router 의 <Script> 는 클라이언트에서 src 를 뺀 빈 <script async> 를 렌더하는데,
+      // React 가 이를 서버 HTML 의 다음 <script>(ld+json)와 짝지어 버려 페이지마다 #418 이 났다.
+      // 대신 RootDocument 에서 React 19 의 async 스크립트(리소스로 호이스팅)로 렌더한다.
     ],
   }),
 
@@ -160,26 +163,32 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       >
         <head>
           <HeadContent />
+          {/* React 19 가 async+src 스크립트를 리소스로 다뤄 서버·클라이언트 모두 하이드레이션 대상에서 제외됨 */}
+          <script async src={ADSENSE_SRC} crossOrigin="anonymous" />
         </head>
         <body
           className="bg-background text-foreground"
           suppressHydrationWarning
         >
           {children}
-          {typeof window !== 'undefined' && (
-            <Suspense fallback={null}>
-              <TanStackDevtools
-                config={{
-                  position: 'bottom-right',
-                }}
-                plugins={[
-                  {
-                    name: 'Tanstack Router',
-                    render: <TanStackRouterDevtoolsPanel />,
-                  },
-                ]}
-              />
-            </Suspense>
+          {/* 서버엔 없고 클라이언트에만 있는 노드는 하이드레이션 불일치(#418)를 낸다.
+              개발 빌드에서만, 하이드레이션이 끝난 뒤 렌더한다. */}
+          {import.meta.env.DEV && (
+            <ClientOnly>
+              <Suspense fallback={null}>
+                <TanStackDevtools
+                  config={{
+                    position: 'bottom-right',
+                  }}
+                  plugins={[
+                    {
+                      name: 'Tanstack Router',
+                      render: <TanStackRouterDevtoolsPanel />,
+                    },
+                  ]}
+                />
+              </Suspense>
+            </ClientOnly>
           )}
           <Scripts />
         </body>
