@@ -5,10 +5,14 @@ import { articles, categoryStats } from '@/db/schema'
 import { eq, desc, sql, and, or, lt } from 'drizzle-orm'
 import { z } from 'zod'
 import { articleCardColumns } from './article-columns'
+import { MAX_ARTICLE_ID } from './route-params'
 
 // 단일 기사 조회 (영향 분석·배경 정보·감성 등 전체 필드 공개)
+// id 는 int4 범위의 양의 정수만 허용 (라우트 loader 에서 먼저 걸러 404 처리)
 export const getArticleById = createServerFn()
-  .inputValidator(zodValidator(z.number()))
+  .inputValidator(
+    zodValidator(z.number().int().positive().max(MAX_ARTICLE_ID)),
+  )
   .handler(async ({ data: id }) => {
     const db = getDb()
     const result = await db

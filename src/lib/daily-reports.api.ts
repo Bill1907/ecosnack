@@ -2,9 +2,15 @@ import { createServerFn } from '@tanstack/react-start'
 import { zodValidator } from '@tanstack/zod-adapter'
 import { getDb } from '@/db'
 import { dailyReports, articles } from '@/db/schema'
-import { eq, desc, inArray } from 'drizzle-orm'
+import { asc, desc, eq, gt, inArray, lt } from 'drizzle-orm'
 import { z } from 'zod'
 import { articleCardColumns } from './article-columns'
+import { isValidReportDate } from './route-params'
+
+// 실제 존재하는 YYYY-MM-DD 날짜만 허용 (라우트 loader 에서 먼저 걸러 404 처리)
+const ReportDateSchema = z.string().refine(isValidReportDate, {
+  message: '유효하지 않은 날짜 형식입니다',
+})
 
 // 페이지네이션 입력 스키마
 const PaginationInputSchema = z.object({
@@ -39,7 +45,7 @@ export const getDailyReports = createServerFn()
 
 // 특정 날짜의 Daily Report 조회 (YYYY-MM-DD 형식)
 export const getDailyReportByDate = createServerFn()
-  .inputValidator(zodValidator(z.string()))
+  .inputValidator(zodValidator(ReportDateSchema))
   .handler(async ({ data: dateString }) => {
     const db = getDb()
 
@@ -69,7 +75,7 @@ export const getDailyReportById = createServerFn()
 
 // Daily Report + 연관 기사 조회 (YYYY-MM-DD 형식)
 export const getDailyReportWithArticles = createServerFn()
-  .inputValidator(zodValidator(z.string()))
+  .inputValidator(zodValidator(ReportDateSchema))
   .handler(async ({ data: dateString }) => {
     const db = getDb()
 
@@ -84,19 +90,35 @@ export const getDailyReportWithArticles = createServerFn()
       return null
     }
 
-    // 연관 기사 조회
-    const relatedArticles =
+    // 연관 기사 + 실제로 존재하는 이전/다음 리포트 날짜
+    // (날짜 +-1 로 링크하면 최신 리포트의 '다음'이나 빠진 날짜가 404 로 이어진다)
+    const [relatedArticles, prevResult, nextResult] = await Promise.all([
       report.articleIds.length > 0
-        ? await db
+        ? db
             .select(articleCardColumns)
             .from(articles)
             .where(inArray(articles.id, report.articleIds))
             .orderBy(desc(articles.pubDate))
-        : []
+        : Promise.resolve([]),
+      db
+        .select({ reportDate: dailyReports.reportDate })
+        .from(dailyReports)
+        .where(lt(dailyReports.reportDate, dateString))
+        .orderBy(desc(dailyReports.reportDate))
+        .limit(1),
+      db
+        .select({ reportDate: dailyReports.reportDate })
+        .from(dailyReports)
+        .where(gt(dailyReports.reportDate, dateString))
+        .orderBy(asc(dailyReports.reportDate))
+        .limit(1),
+    ])
 
     return {
       report,
       articles: relatedArticles,
+      prevDate: prevResult[0]?.reportDate ?? null,
+      nextDate: nextResult[0]?.reportDate ?? null,
     }
   })
 
