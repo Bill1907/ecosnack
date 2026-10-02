@@ -5,12 +5,14 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
-    "start": "bun .output/server/index.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier",
-    "check": "prettier --write . && eslint --fix"
+    "check": "prettier --write . && eslint --fix",
+    "deploy": "bun run build && wrangler deploy",
+    "deploy:dev": "CLOUDFLARE_ENV=dev bun run build && wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
@@ -34,7 +36,6 @@
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.562.0",
-    "nitro": "latest",
     "posthog-js": "^1.318.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -49,6 +50,7 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.62.4",
     "@tanstack/devtools-vite": "^0.3.11",
     "@tanstack/eslint-config": "^0.3.0",
     "@testing-library/dom": "^10.4.0",
@@ -63,6 +65,7 @@
     "typescript": "^5.7.2",
     "vite": "^7.1.7",
     "vitest": "^3.0.5",
-    "web-vitals": "^5.1.0"
+    "web-vitals": "^5.1.0",
+    "wrangler": "^4.146.0"
   }
 }
