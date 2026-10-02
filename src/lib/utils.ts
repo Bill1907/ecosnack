@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import type { Article } from '../db/schema'
+import { formatKstDate } from './date'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -18,7 +19,7 @@ export function formatRelativeTime(date: Date | null): string {
   if (hours < 1) return '방금 전'
   if (hours < 24) return `${hours}시간 전`
   if (days < 7) return `${days}일 전`
-  return date.toLocaleDateString('ko-KR')
+  return formatKstDate(date)
 }
 
 // 읽기 시간 계산 (대략적으로 텍스트 길이 기반)

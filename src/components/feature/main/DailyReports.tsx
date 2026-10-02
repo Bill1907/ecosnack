@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query'
 import { dailyReportsQueryOptions } from '@/lib/daily-reports.queries'
 import { Link } from '@tanstack/react-router'
 import { SentimentBadge } from '@/components/feature/dailyReport/SentimentBadge'
+import { formatKstDate } from '@/lib/date'
 
 export const DailyReports = () => {
   const [api, setApi] = useState<CarouselApi>()
@@ -135,9 +136,7 @@ export const DailyReports = () => {
                               {/* Header - Date & Sentiment */}
                               <div className="flex items-center justify-between mb-4">
                                 <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                                  {new Date(
-                                    report.reportDate,
-                                  ).toLocaleDateString('ko-KR', {
+                                  {formatKstDate(report.reportDate, {
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric',
