@@ -30,7 +30,7 @@ import appCss from '../styles.css?url'
 import { Navigation } from '../components/Navigation'
 import { Sidebar } from '../components/Sidebar'
 import { ScrollToTopButton } from '../components/ScrollToTopButton'
-import { SITE_CONFIG, getDefaultMeta } from '../lib/seo'
+import { SITE_CONFIG, getDefaultMeta, getNotFoundMeta } from '../lib/seo'
 import { PostHogProvider } from 'posthog-js/react'
 import { useThemeStore } from '../stores/themeStore'
 import { Footer } from '@/components/Footer'
@@ -49,12 +49,16 @@ interface RouterContext {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  head: () => ({
+  head: ({ matches }) => ({
     meta: [
       ...getDefaultMeta(),
       {
         title: SITE_CONFIG.title,
       },
+      // 매칭되는 라우트가 없는 주소(전역 404)는 noindex. 같은 name 메타는 뒤쪽이 우선
+      ...(matches.some((match) => match.globalNotFound)
+        ? getNotFoundMeta()
+        : []),
     ],
     links: [
       {

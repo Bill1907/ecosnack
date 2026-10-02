@@ -1,8 +1,4 @@
-import {
-  createFileRoute,
-  ErrorComponentProps,
-  Link,
-} from '@tanstack/react-router'
+import { createFileRoute, Link, notFound } from '@tanstack/react-router'
 import { getDailyReportWithArticles } from '../lib/daily-reports.api'
 import { useEffect } from 'react'
 import { usePostHog } from 'posthog-js/react'
@@ -11,9 +7,11 @@ import { SentimentBadge } from '@/components/feature/dailyReport/SentimentBadge'
 import { ExecutiveSummary } from '@/components/feature/dailyReport/ExecutiveSummary'
 import { KeyInsightCard } from '@/components/feature/dailyReport/KeyInsightCard'
 import DailyReportNotFound from '@/components/feature/dailyReport/DailyReportNotFound'
+import { parseReportDate } from '@/lib/route-params'
 import { ShareButtons } from '@/components/feature/article/ShareButtons'
 import {
   SITE_CONFIG,
+  getNotFoundMeta,
   getPageMeta,
   getBreadcrumbJsonLd,
   truncateDescription,
@@ -22,17 +20,23 @@ import { formatKstDate, shiftDate, todayKst } from '@/lib/date'
 
 export const Route = createFileRoute('/daily-report/$date')({
   loader: async ({ params }) => {
-    const result = await getDailyReportWithArticles({ data: params.date })
+    // 실제 존재하지 않는 날짜/형식은 DB 조회 없이 404 (SSR 응답 상태 코드도 404 가 된다)
+    const date = parseReportDate(params.date)
+    if (date === null) {
+      throw notFound()
+    }
 
+    const result = await getDailyReportWithArticles({ data: date })
     if (!result) {
-      return { report: null, articles: [] }
+      throw notFound()
     }
 
     return result
   },
   head: ({ loaderData, params }) => {
+    // loader 가 notFound 를 던지면 loaderData 가 없다 → 404 메타(noindex)
     if (!loaderData) {
-      return {}
+      return { meta: getNotFoundMeta('리포트를 찾을 수 없습니다') }
     }
 
     const { report } = loaderData
@@ -125,23 +129,24 @@ export const Route = createFileRoute('/daily-report/$date')({
       ],
     }
   },
-  errorComponent: DailyReportErrorComponent,
+  notFoundComponent: DailyReportNotFoundComponent,
   component: DailyReportDetailPage,
 })
 
-function DailyReportErrorComponent({ error }: ErrorComponentProps) {
+// 없는 리포트 / 잘못된 날짜 → 404 화면 (그 외 서버 에러는 루트 ErrorComponent 가 처리)
+function DailyReportNotFoundComponent() {
   const posthog = usePostHog()
   const isDevelopment = process.env.NODE_ENV === 'development'
 
   useEffect(() => {
-    // 프로덕션 환경에서만 PostHog에 에러 로깅
+    // 프로덕션 환경에서만 PostHog에 로깅
     if (!isDevelopment && posthog) {
       posthog.capture('daily_report_not_found', {
-        error_message: error.message,
+        path: window.location.pathname,
         timestamp: new Date().toISOString(),
       })
     }
-  }, [error, posthog, isDevelopment])
+  }, [posthog, isDevelopment])
 
   return (
     <div className="bg-background min-h-screen flex flex-col">
@@ -157,13 +162,7 @@ function DailyReportDetailPage() {
     window.scrollTo(0, 0)
   }, [])
 
-  if (!report) {
-    return (
-      <div className="bg-background min-h-screen flex flex-col">
-        <DailyReportNotFound />
-      </div>
-    )
-  }
+  // 리포트가 없으면 loader 가 notFound 를 던지므로 여기서 report 는 항상 존재
 
   // 날짜 네비게이션 계산
   // 'YYYY-MM-DD' 문자열로만 계산해 서버(UTC)·브라우저 시간대와 무관하게 같은 결과를 낸다

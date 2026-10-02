@@ -5,6 +5,12 @@ import { dailyReports, articles } from '@/db/schema'
 import { eq, desc, inArray } from 'drizzle-orm'
 import { z } from 'zod'
 import { articleCardColumns } from './article-columns'
+import { isValidReportDate } from './route-params'
+
+// 실제 존재하는 YYYY-MM-DD 날짜만 허용 (라우트 loader 에서 먼저 걸러 404 처리)
+const ReportDateSchema = z.string().refine(isValidReportDate, {
+  message: '유효하지 않은 날짜 형식입니다',
+})
 
 // 페이지네이션 입력 스키마
 const PaginationInputSchema = z.object({
@@ -39,7 +45,7 @@ export const getDailyReports = createServerFn()
 
 // 특정 날짜의 Daily Report 조회 (YYYY-MM-DD 형식)
 export const getDailyReportByDate = createServerFn()
-  .inputValidator(zodValidator(z.string()))
+  .inputValidator(zodValidator(ReportDateSchema))
   .handler(async ({ data: dateString }) => {
     const db = getDb()
 
@@ -69,7 +75,7 @@ export const getDailyReportById = createServerFn()
 
 // Daily Report + 연관 기사 조회 (YYYY-MM-DD 형식)
 export const getDailyReportWithArticles = createServerFn()
-  .inputValidator(zodValidator(z.string()))
+  .inputValidator(zodValidator(ReportDateSchema))
   .handler(async ({ data: dateString }) => {
     const db = getDb()
 

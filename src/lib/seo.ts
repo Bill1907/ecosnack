@@ -50,6 +50,18 @@ export function getDefaultMeta() {
 }
 
 /**
+ * 404 페이지 메타 태그 (검색엔진 색인 제외)
+ * - HeadContent 는 하위 라우트의 같은 name 메타를 우선하므로 루트의 'index, follow' 를 덮어쓴다
+ */
+export function getNotFoundMeta(title = '페이지를 찾을 수 없습니다') {
+  return [
+    { title: `${title} | ${SITE_CONFIG.name}` },
+    { name: 'robots', content: 'noindex, follow' },
+    { name: 'googlebot', content: 'noindex, follow' },
+  ]
+}
+
+/**
  * 페이지별 메타 태그 생성
  */
 export function getPageMeta({

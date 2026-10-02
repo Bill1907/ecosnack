@@ -1,4 +1,4 @@
-import { createFileRoute, ErrorComponentProps } from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
 import { usePostHog } from 'posthog-js/react'
 import { ArticleHeader } from '../components/feature/article/ArticleHeader'
 import { ImpactItem } from '../components/feature/article/ImpactItem'
@@ -8,32 +8,37 @@ import {
   SITE_CONFIG,
   getArticleJsonLd,
   getBreadcrumbJsonLd,
+  getNotFoundMeta,
   getPageMeta,
   truncateDescription,
 } from '../lib/seo'
 import { TIME_HORIZON_CONFIG } from '@/lib/const'
+import { parseArticleId } from '@/lib/route-params'
 import ArticleNotFound from '@/components/feature/article/ArticleNotFound'
 import { useEffect } from 'react'
 
 export const Route = createFileRoute('/article/$id')({
   loader: async ({ params }) => {
-    const article = await getArticleById({ data: Number(params.id) })
+    // 형식이 잘못된 id 는 DB 조회 없이 404 (SSR 응답 상태 코드도 404 가 된다)
+    const id = parseArticleId(params.id)
+    if (id === null) {
+      throw notFound()
+    }
 
+    const article = await getArticleById({ data: id })
     if (!article) {
-      throw new Error('존재하지 않는 기사입니다')
+      throw notFound()
     }
 
     return { article }
   },
   head: ({ loaderData }) => {
+    // loader 가 notFound 를 던지면 loaderData 가 없다 → 404 메타(noindex)
     if (!loaderData) {
-      return {}
+      return { meta: getNotFoundMeta('기사를 찾을 수 없습니다') }
     }
 
     const { article } = loaderData
-    if (!article) {
-      return {}
-    }
 
     const categoryName = article.category
       ? CATEGORY_NAMES[article.category]
@@ -79,23 +84,24 @@ export const Route = createFileRoute('/article/$id')({
       ],
     }
   },
-  errorComponent: ArticleErrorComponent,
+  notFoundComponent: ArticleNotFoundComponent,
   component: ArticleDetailPage,
 })
 
-function ArticleErrorComponent({ error }: ErrorComponentProps) {
+// 없는 기사 / 잘못된 id → 404 화면 (그 외 서버 에러는 루트 ErrorComponent 가 처리)
+function ArticleNotFoundComponent() {
   const posthog = usePostHog()
   const isDevelopment = process.env.NODE_ENV === 'development'
 
   useEffect(() => {
-    // 프로덕션 환경에서만 PostHog에 에러 로깅
+    // 프로덕션 환경에서만 PostHog에 로깅
     if (!isDevelopment && posthog) {
       posthog.capture('article_not_found', {
-        error_message: error.message,
+        path: window.location.pathname,
         timestamp: new Date().toISOString(),
       })
     }
-  }, [error, posthog, isDevelopment])
+  }, [posthog, isDevelopment])
 
   return (
     <div className="bg-background min-h-screen flex flex-col">
