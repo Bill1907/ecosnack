@@ -2,7 +2,7 @@ import { articles } from '@/db/schema'
 import type { Article } from '@/db/schema'
 
 // 목록/카드용 공개 컬럼 집합
-// 회원 전용 분석(impactAnalysis, relatedContext, sentiment)과 카드에서 안 쓰는 필드는 제외한다
+// 카드에서 안 쓰는 무거운 분석 필드(impactAnalysis, relatedContext, sentiment 등)는 제외한다
 export const articleCardColumns = {
   id: articles.id,
   title: articles.title,

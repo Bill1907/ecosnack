@@ -1,14 +1,12 @@
 import { createServerFn } from '@tanstack/react-start'
 import { zodValidator } from '@tanstack/zod-adapter'
-import { auth } from '@clerk/tanstack-react-start/server'
 import { getDb } from '@/db'
 import { articles, categoryStats } from '@/db/schema'
 import { eq, desc, sql, and, or, lt } from 'drizzle-orm'
 import { z } from 'zod'
 import { articleCardColumns } from './article-columns'
 
-// 단일 기사 조회
-// 비로그인 사용자에게는 회원 전용 분석(영향 분석, 배경 정보, 감성/신뢰도)을 내려주지 않는다
+// 단일 기사 조회 (영향 분석·배경 정보·감성 등 전체 필드 공개)
 export const getArticleById = createServerFn()
   .inputValidator(zodValidator(z.number()))
   .handler(async ({ data: id }) => {
@@ -19,25 +17,7 @@ export const getArticleById = createServerFn()
       .where(eq(articles.id, id))
       .limit(1)
 
-    const article = result[0]
-    if (!article) {
-      return null
-    }
-
-    const { userId } = await auth()
-    if (!userId) {
-      return {
-        article: {
-          ...article,
-          impactAnalysis: null,
-          relatedContext: null,
-          sentiment: null,
-        },
-        isGated: true,
-      }
-    }
-
-    return { article, isGated: false }
+    return result[0] ?? null
   })
 
 // 페이지네이션 입력 스키마
