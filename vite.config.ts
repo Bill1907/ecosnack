@@ -4,28 +4,23 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
-import { nitro } from 'nitro/vite'
+import { cloudflare } from '@cloudflare/vite-plugin'
 
 export default defineConfig({
   plugins: [
     devtools(),
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
     tailwindcss(),
     tanstackStart(),
-    nitro({
-      preset: 'bun',
-      routeRules: {
-        '/assets/**': {
-          headers: { 'cache-control': 'public, max-age=31536000, immutable' },
-        },
-      },
-    }),
     viteReact(),
   ],
   build: {
-    sourcemap: 'hidden', // 소스맵 생성 (프로덕션에서 숨김)
+    // 소스맵 생성 안 함: 'hidden' 은 .map 파일을 public/assets 에 그대로 두어 공개 서빙됨
+    // (소스맵 업로드 대상이 없으므로 생성 자체를 끈다)
+    sourcemap: false,
   },
   optimizeDeps: {
     include: [

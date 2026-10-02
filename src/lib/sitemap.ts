@@ -47,7 +47,9 @@ function createUrlEntry(url: SitemapUrl): string {
 /**
  * Sitemap XML 생성
  */
-export function generateSitemap(articles: Article[]): string {
+export function generateSitemap(
+  articles: Pick<Article, 'id' | 'createdAt'>[],
+): string {
   const urls: SitemapUrl[] = []
 
   // 홈페이지

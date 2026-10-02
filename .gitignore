@@ -12,3 +12,5 @@ count.txt
 .dev.vars
 .vinxi
 todos.json
+.dev.vars.*
+worker-startup.cpuprofile

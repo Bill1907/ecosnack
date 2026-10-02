@@ -1,4 +1,8 @@
-import { createFileRoute, ErrorComponentProps } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  ErrorComponentProps,
+  useRouter,
+} from '@tanstack/react-router'
 import { useAuth } from '@clerk/tanstack-react-start'
 import { usePostHog } from 'posthog-js/react'
 import { ArticleHeader } from '../components/feature/article/ArticleHeader'
@@ -14,7 +18,7 @@ import {
 } from '../lib/seo'
 import { TIME_HORIZON_CONFIG } from '@/lib/const'
 import ArticleNotFound from '@/components/feature/article/ArticleNotFound'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { getAuthStatus } from '@/lib/auth.middleware'
 import { LoginRequiredOverlay } from '@/components/feature/article/LoginRequiredOverlay'
 
@@ -25,13 +29,14 @@ export const Route = createFileRoute('/article/$id')({
     return { isAuthenticated }
   },
   loader: async ({ params }) => {
-    const article = await getArticleById({ data: Number(params.id) })
+    // 비로그인이면 회원 전용 필드가 null 로 비워진 채(isGated: true) 내려온다
+    const result = await getArticleById({ data: Number(params.id) })
 
-    if (!article) {
+    if (!result) {
       throw new Error('존재하지 않는 기사입니다')
     }
 
-    return { article }
+    return { article: result.article, isGated: result.isGated }
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -114,9 +119,12 @@ function ArticleErrorComponent({ error }: ErrorComponentProps) {
 }
 
 function ArticleDetailPage() {
-  const { article } = Route.useLoaderData()
+  const { article, isGated } = Route.useLoaderData()
   const { isAuthenticated: ssrIsAuthenticated } = Route.useRouteContext()
   const { isSignedIn } = useAuth() // 클라이언트 사이드 인증 체크
+  const router = useRouter()
+  // 기사별로 재조회를 한 번만 시도하기 위한 기록 (무한 루프 방지)
+  const refetchedArticleIdRef = useRef<number | null>(null)
 
   // SSR: ssrIsAuthenticated 사용
   const isAuthenticated =
@@ -125,6 +133,20 @@ function ArticleDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
+
+  // 모달 로그인 직후: 로더 데이터가 비로그인(gated) 버전이면 회원용 데이터로 다시 불러온다
+  useEffect(() => {
+    if (!isSignedIn) {
+      // 로그아웃 상태로 돌아오면 다음 로그인 때 다시 시도할 수 있게 초기화
+      refetchedArticleIdRef.current = null
+      return
+    }
+    if (!isGated || refetchedArticleIdRef.current === article.id) {
+      return
+    }
+    refetchedArticleIdRef.current = article.id
+    router.invalidate()
+  }, [isSignedIn, isGated, article.id, router])
 
   return (
     <div className="bg-background min-h-screen flex flex-col">
