@@ -21,14 +21,3 @@ export function formatKstDate(
     ...options,
   }).format(toDate(value))
 }
-
-// KST 기준 오늘 날짜 'YYYY-MM-DD'
-export function todayKst(now: Date = new Date()): string {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(now)
-}
-
-// 'YYYY-MM-DD' 에 days 를 더한 'YYYY-MM-DD' (시간대 영향 없음)
-export function shiftDate(date: string, days: number): string {
-  const [y, m, d] = date.split('-').map(Number)
-  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10)
-}

@@ -16,7 +16,7 @@ import {
   getBreadcrumbJsonLd,
   truncateDescription,
 } from '../lib/seo'
-import { formatKstDate, shiftDate, todayKst } from '@/lib/date'
+import { formatKstDate } from '@/lib/date'
 
 export const Route = createFileRoute('/daily-report/$date')({
   loader: async ({ params }) => {
@@ -156,20 +156,14 @@ function DailyReportNotFoundComponent() {
 }
 
 function DailyReportDetailPage() {
-  const { report, articles } = Route.useLoaderData()
+  const { report, articles, prevDate, nextDate } = Route.useLoaderData()
 
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
 
   // 리포트가 없으면 loader 가 notFound 를 던지므로 여기서 report 는 항상 존재
-
-  // 날짜 네비게이션 계산
-  // 'YYYY-MM-DD' 문자열로만 계산해 서버(UTC)·브라우저 시간대와 무관하게 같은 결과를 낸다
-  const getPreviousDate = () => shiftDate(report.reportDate, -1)
-  const getNextDate = () => shiftDate(report.reportDate, 1)
-
-  const isLatestReport = report.reportDate >= todayKst()
+  // 이전/다음은 실제로 존재하는 리포트 날짜(없으면 null)
 
   return (
     <div className="bg-background min-h-screen flex flex-col">
@@ -371,14 +365,21 @@ function DailyReportDetailPage() {
         <Card className="p-6 shadow-sm">
           <div className="flex items-center justify-between gap-4">
             {/* Previous Date */}
-            <Link
-              to="/daily-report/$date"
-              params={{ date: getPreviousDate() }}
-              className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
-            >
-              <span className="text-xl">←</span>
-              <span className="text-sm font-medium">이전 리포트</span>
-            </Link>
+            {prevDate ? (
+              <Link
+                to="/daily-report/$date"
+                params={{ date: prevDate }}
+                className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+              >
+                <span className="text-xl">←</span>
+                <span className="text-sm font-medium">이전 리포트</span>
+              </Link>
+            ) : (
+              <div className="flex items-center gap-2 px-4 py-2 text-muted-foreground/40 cursor-not-allowed">
+                <span className="text-xl">←</span>
+                <span className="text-sm font-medium">이전 리포트</span>
+              </div>
+            )}
 
             {/* Current Date Display */}
             <div className="text-center">
@@ -392,20 +393,20 @@ function DailyReportDetailPage() {
             </div>
 
             {/* Next Date */}
-            {isLatestReport ? (
-              <div className="flex items-center gap-2 px-4 py-2 text-muted-foreground/40 cursor-not-allowed">
-                <span className="text-sm font-medium">다음 리포트</span>
-                <span className="text-xl">→</span>
-              </div>
-            ) : (
+            {nextDate ? (
               <Link
                 to="/daily-report/$date"
-                params={{ date: getNextDate() }}
+                params={{ date: nextDate }}
                 className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
               >
                 <span className="text-sm font-medium">다음 리포트</span>
                 <span className="text-xl">→</span>
               </Link>
+            ) : (
+              <div className="flex items-center gap-2 px-4 py-2 text-muted-foreground/40 cursor-not-allowed">
+                <span className="text-sm font-medium">다음 리포트</span>
+                <span className="text-xl">→</span>
+              </div>
             )}
           </div>
         </Card>
